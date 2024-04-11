@@ -1,0 +1,29 @@
+{% extends 'main.html' %}
+{% block content %}
+{% if page %}
+<section class="change-status-section">
+
+    <form method="post" class="change-status-form">
+        <h1>Change status</h1>
+        {% csrf_token %}
+        <label for="status">Status:</label>
+        <select name="status" id="status" class="status-select">
+            {% for choice in choices %}
+                <option value="{{ choice.0 }}" {% if choice.0 == order.status %}selected{% endif %}>{{ choice.1 }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <input type="submit" value="Update Status" class="update-status-button">
+    </form>
+</section>
+{% else %}
+<section class="register-section">
+    <form action="" method="post" class="register-form">
+        {% csrf_token %}
+        {{form.as_p}}
+
+        <input value="submit" type="submit" class="submit-button">
+    </form>
+</section>
+{%endif%}
+{% endblock %}

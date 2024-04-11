@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="{% static 'styles/main.css'%}">
+</head>
+{% block content %}
+<body>
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="{% url 'main' %}">OrderManager</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a href="{% url 'main' %}">Main page</a></li>
+      <li><a href="{% url 'showorders' %}">Order list</a></li>
+      {% if request.user.is_authenticated %}
+      <li><a href="{% url 'logout' %}">Logout</a></li>
+      {% else %}
+      <li><a href="{% url 'login' %}">Login/Sign Up</a></li>
+      {% endif %}
+      <li><a href="{% url 'docs' %}">Documentation</a></li>
+      {% if request.user.is_authenticated %}
+      <p class="navbar-text navbar-left-text">Hey, {{ request.user }} your role is {{ request.user.role }}</p>
+      {% endif %}
+    </ul>
+  </div>
+</nav>
+</body>
+{% endblock %}
+</html>

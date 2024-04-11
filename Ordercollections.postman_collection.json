@@ -1,0 +1,278 @@
+{
+	"info": {
+		"_postman_id": "9b44ef1f-95de-49c8-b546-b4efe9e8325c",
+		"name": "Ordercollections",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23380959"
+	},
+	"item": [
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "orders",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg2NTI4NDk0LCJpYXQiOjE2ODY1MjgxOTQsImp0aSI6ImE3YTgzNmFjZTM2YjRlOGI5MWMwODkzZWI1NzhmMmVmIiwidXNlcl9pZCI6MTB9.1xdvMbohyIXluDhB3cfIYUX2ADhtPtxDja1mwXdb2hY",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/api/orders/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "orders/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/orders/1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/orders/:id/payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg2NjAzOTI4LCJpYXQiOjE2ODY2MDM2MjgsImp0aSI6ImI5OWJjMDUzMWJiNTQ2MjhiNDY2ODVjNmEyZGQ1M2VhIiwidXNlcl9pZCI6NX0.FL5ReruE6BvVd7xrIGUH3cRXhCDAcdO6MJhlmnWwbRI",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/api/orders/6/payment/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"6",
+								"payment",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/orders/:id/payment/check",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg2NjA0NDM4LCJpYXQiOjE2ODY2MDQxMzgsImp0aSI6IjM4Y2ZiMzk4M2I0ZTQwZWQ4MGU5ZWIyMTM1MmZiNTA5IiwidXNlcl9pZCI6MTB9.xiWe1AsgbFhdg2GTfIofHgM815URk5THIbmE4mJqRnI",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/api/orders/7/gen-bill/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"7",
+								"gen-bill",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/orders/:id/changestatus",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg2NjA0NDM4LCJpYXQiOjE2ODY2MDQxMzgsImp0aSI6IjM4Y2ZiMzk4M2I0ZTQwZWQ4MGU5ZWIyMTM1MmZiNTA5IiwidXNlcl9pZCI6MTB9.xiWe1AsgbFhdg2GTfIofHgM815URk5THIbmE4mJqRnI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\":\"Paid\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/orders/7/change-status/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"7",
+								"change-status",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/products/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"products",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "products/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/products/1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "products/:id/order/create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg2NjA0MzcyLCJpYXQiOjE2ODY2MDQwNzIsImp0aSI6IjYyNzA1Zjc2YzE5NjRmYmZiZTJhMWJmM2M5OTgyYjQ2IiwidXNlcl9pZCI6NX0.MxOTHnQUmBjEmTw-4nL9J8oow6FQDe_hxWMK2VCtt7s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"address\": \"U address\",\r\n    \"postal_code\": \"U postal_code\",\r\n    \"city\": \"U city name\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/products/1/order/create/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"1",
+								"order",
+								"create",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "users/token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \r\n        \"cashieruser\"\r\n    ,\r\n    \"password\": \r\n        \"S659993036\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/users/token/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"token",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "api/routes",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}

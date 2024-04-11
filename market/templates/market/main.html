@@ -1,0 +1,36 @@
+{% extends "main.html" %}
+
+{% block content %}
+<section>
+    
+</section>
+<section>
+    {% if products %}
+    <h1>It's a list of available products. Hope you'll find what you're looking for.</h1>
+    <div class="product-list">
+        {% for product in products %}
+        <div class="product-item">
+            <h2>{{ product.name }}</h2>
+            <ul>
+                <li>
+                    {% if product.discounted_price %}
+                    <span class="original-price">Price: {{ product.price }}</span>
+                    <span class="discounted-price">{{ product.discounted_price }}</span>
+                    {% else %}
+                    <span class="price">Price: {{ product.price }}</span>
+                    {% endif %}
+                </li>
+                <li>Added: {{ product.created }}</li>
+            </ul>
+            {% if request.user.role == 'USER' %}
+            <a href="{% url 'user-order' pk=product.id %}" class="buy-button">Buy</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+       
+    </div>
+    {% else %}
+        <h1>No products yet...</h1>
+    {% endif %} 
+</section>
+{% endblock %}

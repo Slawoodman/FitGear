@@ -1,0 +1,89 @@
+{% extends "main.html" %}
+
+{% block content %}
+<section>
+  {% if orders %}
+  <form method="GET" action="" class="filter-form">
+    {% if request.user.role == 'BOOKER' %}
+      <label for="from">From:</label>
+      <input type="date" id="from" name="from">
+    
+      <label for="to">To:</label>
+      <input type="date" id="to" name="to">
+    {% endif %}
+    
+    <label for="status">Status:</label>
+    <select id="status" name="status">
+      <option value="">All</option>
+      <option value="Undecided">Undecided</option>
+      <option value="Paid">Paid</option>
+      <option value="Completed">Completed</option>
+    </select>
+  
+    <button type="submit" class="buy-button">Filter</button>
+  </form>
+  <table class="order-table">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Product Name</th>
+        <th>Price</th>
+        <th>Date Created</th>
+        <th>Status</th>
+        {% if request.user.role != 'USER' %}
+          <th>Change Status</th>
+        {% elif request.user.role == 'CASHIER' %}
+          <th>Generate Bill</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.product }}</td>
+        <td>{{ order.price }}</td>
+        <td>{{ order.created }}</td>
+        {% if not order.is_paid %}
+          {% if request.user == order.customer %}
+            <td><a href="{% url 'checkout' pk=order.id %}">Pay</a></td>
+          {% endif %}
+        {% else %}
+          <td><p>{{ order.status }}</p></td>
+        {% endif %}
+        
+        {% if request.user.role != 'USER' and order.is_paid %}
+          <td><a href="{% url 'change_status' pk=order.id %}">Change</a></td>
+          
+          {% if order.file %}
+            <td><a href="{% url 'genpayment' pk=order.id %}">Recreate Payment Bill</a></td>
+            <td><a href="{% url 'view_html' pk=order.id %}">Open Payment Bill</a></td>
+          {% elif request.user.role in 'BOOKERCASHIER' %}
+            <td><a href="{% url 'genpayment' pk=order.id %}">Create Payment Bill</a></td>
+          {% endif %}
+        {% elif request.user.role != 'USER' %}
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        {% endif %}
+        
+        {% if order.file %}
+          {% if order.status == 'Paid' and request.user.role == 'USER' %}
+            <td><a href="{% url 'view_html' pk=order.id %}">Download Payment Bill</a></td>
+          {% elif order.status == 'Completed' and request.user.role == 'USER' %}
+            <td>
+              <p>Your order is completed. <a href="{% url 'view_html' pk=order.id %}">Download Payment Bill</a></p>
+            </td>
+          {% endif %}
+        {% elif request.user.role == 'USER' %}
+          <td>Wait until the admin checks the bill</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <h1>There are no orders.</h1>
+  {% endif %}
+</section>
+{% endblock %}

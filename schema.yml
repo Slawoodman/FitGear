@@ -1,0 +1,603 @@
+openapi: 3.0.3
+info:
+  title: Django DRF OrderManager
+  version: 0.0.0
+paths:
+  /api/orders/:
+    get:
+      operationId: api_orders_list
+      description: "\n            Get orders based on user role.\n\n            Returns\
+        \ a list of orders based on the user's role.\n\n            Available roles:\n\
+        \                - Booker: All orders\n                - Consultant: Orders\
+        \ that have status \"Paid\" and \"Completed\"\n                - Cashier:\
+        \ Orders that have status \"Undecided\" and \"Paid\"\n                - User:\
+        \ Orders that have been ordered by the current user\n\n            Example\
+        \ response:\n            [\n                {\n                    \"id\"\
+        : 1,\n                    \"customer\": \"John Doe\",\n                  \
+        \  \"status\": \"Undecided\",\n                    ...\n                },\n\
+        \                ...\n            ]\n        "
+      tags:
+      - Orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderItem'
+          description: ''
+  /api/orders/{id}/:
+    get:
+      operationId: api_orders_retrieve
+      description: "\n            Get an order by ID.\n\n            Returns the details\
+        \ of the specified order.\n\n            Parameters:\n                - `pk`\
+        \ (int): The ID of the order.\n\n            Example response:\n         \
+        \   {\n                \"id\": 1,\n                \"customer\": \"John Doe\"\
+        ,\n                \"status\": \"Pending\",\n            }\n        "
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+          description: ''
+  /api/orders/{id}/change-status/:
+    post:
+      operationId: api_orders_change_status_create
+      description: "\n            Change the status of an order.\n            Changes\
+        \ the status of the specified order.\n\n            Parameters:\n        \
+        \        - `pk` (int): The ID of the order.\n\n            Example response:\n\
+        \            {\n                \"detail\": \"Order status updated successfully.\"\
+        \n            }\n        "
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: Completed
+              required:
+              - status
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/orders/{id}/gen-bill/:
+    post:
+      operationId: api_orders_gen_bill_create
+      description: "\n            Generate a bill for an order.\n\n            Generates\
+        \ a bill for the specified order.\n\n            Parameters:\n           \
+        \     - `pk` (int): The ID of the order.\n\n            Example response:\n\
+        \                \"Payment is created...\"\n        "
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/orders/{id}/payment/:
+    post:
+      operationId: api_orders_payment_create
+      description: "\n            Pay for an order.\n\n            Processes the payment\
+        \ for the specified order.\n\n            Parameters:\n                - `pk`\
+        \ (int): The ID of the order.\n\n            Example response:\n         \
+        \       \"Payment successful.\"\n        "
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/products/:
+    get:
+      operationId: api_products_list
+      description: "\n                Get all products.\n                Returns a\
+        \ list of all products available in the system.\n            "
+      tags:
+      - Products
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+          description: ''
+  /api/products/{id}/:
+    get:
+      operationId: api_products_retrieve
+      description: "\n            Get a product by ID.\n\n            Returns the\
+        \ product details for the specified ID.\n\n            Parameters:\n     \
+        \           - `pk` (int): The ID of the product.\n\n            Example response:\n\
+        \            {\n                \"id\": 1,\n                \"name\": \"Product\
+        \ 1\",\n                \"price\": 10.99,\n                ...\n         \
+        \   }\n        "
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Products
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/products/{id}/order/create/:
+    post:
+      operationId: api_products_order_create_create
+      description: "\n            Create a new order, only User can create one.\n\
+        \            Creates a new order for the specified product.\n\n          \
+        \  Parameters:\n                - `pk` (int): The ID of the product.\n\n \
+        \           Example request body:\n                {\n                   \
+        \ \"address\": \"U address\",\n                    \"postal_code\": \"U postal_code\"\
+        ,\n                    \"city\": \"U city name\",\n                }\n\n \
+        \           Example response:\n                \"New order created successfully!\n\
+        \        "
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  example: U'r address
+                postal_code:
+                  type: string
+                  example: U'r postal_code
+                city:
+                  type: string
+                  example: U'r city name
+              required:
+              - status
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/routes/:
+    get:
+      operationId: api_routes_retrieve
+      description: "\n            Get available routes.\n\n            Returns a list\
+        \ of available routes in the API.\n\n            Example response:\n     \
+        \           [{\"GET\": \"/api/routes/\"}]\n        "
+      tags:
+      - Routes
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/schema/:
+    get:
+      operationId: api_schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/users/token/:
+    post:
+      operationId: api_users_token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/users/token/refresh/:
+    post:
+      operationId: api_users_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+components:
+  schemas:
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          $ref: '#/components/schemas/Product'
+        customer:
+          $ref: '#/components/schemas/User'
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        address:
+          type: string
+          maxLength: 250
+        postal_code:
+          type: string
+          maxLength: 20
+        city:
+          type: string
+          maxLength: 100
+        created:
+          type: string
+          format: date-time
+          nullable: true
+        updated:
+          type: string
+          format: date-time
+          nullable: true
+        file:
+          type: string
+          format: uri
+          nullable: true
+        is_paid:
+          type: boolean
+          nullable: true
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+      required:
+      - customer
+      - id
+      - product
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          nullable: true
+          maxLength: 150
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        discounted_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        created:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+    StatusEnum:
+      enum:
+      - Undecided
+      - Paid
+      - Completed
+      type: string
+      description: |-
+        * `Undecided` - UNDECIDED
+        * `Paid` - PAID
+        * `Completed` - COMPLETED
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+      required:
+      - id
+      - username
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

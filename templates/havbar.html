@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="{% static 'styles/main.css'%}">
+  <link rel="stylesheet" href="{% static 'styles/main.css' %}">
 </head>
 {% block content %}
 <body>
@@ -26,8 +26,11 @@
       <li><a href="{% url 'login' %}">Login/Sign Up</a></li>
       {% endif %}
       <li><a href="{% url 'docs' %}">Documentation</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
       {% if request.user.is_authenticated %}
-      <p class="navbar-text navbar-left-text">Hey, {{ request.user }} your role is {{ request.user.role }}</p>
+      <li><p class="navbar-text">Hey, {{ request.user }}</p></li>
+      <li><a href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Cart</a></li>
       {% endif %}
     </ul>
   </div>

@@ -30,15 +30,19 @@
   </div>
   <div class="tab-pane" id="ingredients">
     <div class="product-description">
-      <p>All flavours contain milk and Soy.</p>
       <h3>Ingredients</h3>
-      <ul>
-        <!-- List of ingredients -->
-      </ul>
-      <h3>Nutrition Facts</h3>
-      <table>
-        <!-- Nutritional information table -->
-      </table>
+      {% for row in product.product_info.all %}
+        <tr>
+          {% if row.parametrs %}
+            <th>{{row.parametrs}}</th>
+            {% else %}
+              <th></th>
+            {% endif %}
+            <td>
+              <p>{{row.parameter_description}}</p>
+            </td>
+        </tr>
+      {% endfor %}
     </div>
   </div>
   <div class="tab-pane" id="reviews">

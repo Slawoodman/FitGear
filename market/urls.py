@@ -3,10 +3,11 @@ from . import views
 
 urlpatterns = [
     path("", views.MainPageView.as_view(), name="main"),
-    path("prouct/<str:pk>", views.prouct_view, name="prouct-view"),
+    path("product/<str:pk>", views.product_view, name="product-view"),
     path("order/<str:pk>", views.CreateUserOrderView.as_view(), name="user-order"),
     path("orders/", views.GetOrdersView.as_view(), name="showorders"),
     path("checkout/<int:pk>", views.MarkOrderItemAsPaidView.as_view(), name="checkout"),
+
     path(
         "payment/<int:pk>", views.GeneratePaymentHtmlView.as_view(), name="genpayment"
     ),

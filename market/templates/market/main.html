@@ -10,7 +10,7 @@
     <div class="product-list">
         {% for product in products %}
         <div class="product-item">
-            <h2>{{ product.name }}</h2>
+            <a href="{% url 'product-view' pk=product.id %}"><h2>{{ product.name }}</h2></a>
             <ul>
                 <li>
                     {% if product.discounted_price %}

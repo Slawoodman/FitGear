@@ -23,8 +23,14 @@ class MainPageView(View):
         # Render the 'main.html' template, passing in the context
         return render(request, "market/main.html", context)
 
-def prouct_view(request, id):
-    return render('market/main.html')
+
+def product_view(request, pk):
+    product = get_object_or_404(Product, id=pk)
+    context = {}
+    context['product'] = product
+    return render(request, 'market/product_page.html', context)
+
+
 # Class based view to display all orders. It uses the LoginRequiredMixin to ensure that only logged in users can access this view.
 class GetOrdersView(LoginRequiredMixin, View):
     # Function to handle HTTP GET requests. It fetches all the order items and renders the order list page.

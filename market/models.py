@@ -5,12 +5,20 @@ from users.models import User
 from django.db import models
 from decimal import Decimal
 
-
+RATING = (
+    ( 1,  "★☆☆☆☆"),
+    ( 2,  "★★☆☆☆"),
+    ( 3,  "★★★☆☆"),
+    ( 4,  "★★★★☆"),
+    ( 5,  "★★★★★"),
+)
 
 
 class Product(models.Model):
     name = models.CharField(max_length=150, blank=True, null=True)
+    image = models.ImageField(upload_to='products/', default='/default/image.jpg')
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    short_description = models.TextField(max_length=200, blank=True, null=True)
     description = RichTextField()
     discounted_price = models.DecimalField(
         default=None, max_digits=10, decimal_places=2, blank=True, null=True
@@ -36,7 +44,40 @@ class Product(models.Model):
             self.discounted_price = self.price * Decimal(0.8)
         else:
             self.discounted_price = None
-        
+
+
+class ProductImages(models.Model):
+    images = models.ImageField(upload_to="product-images", default="product.jpg")
+    product = models.ForeignKey(Product, related_name="p_images", on_delete=models.SET_NULL, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        verbose_name_plural = "Product Images"
+
+
+class ProductInfo(models.Model):
+    product = models.ForeignKey(Product, related_name="product_info", on_delete=models.SET_NULL, null=True)
+    parametrs = models.CharField(max_length=100, null=True, blank=True)
+    parameter_description = models.CharField(max_length=200, null=True, blank=True)
+
+
+class ProductReview(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, related_name="reviews")
+    review = models.TextField()
+    rating = models.IntegerField(choices=RATING, blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Product Reviews"
+
+    def __str__(self):
+        return self.product.name
+
+    def get_rating(self):
+        return self.rating
+
 
 class OrderItem(models.Model):
     STATUS_CHOICES = (
@@ -76,7 +117,7 @@ class OrderItem(models.Model):
 
 
     def status_to_pading(self):
-        if self.customer.role == 'CASHIER':
+        if self.customer.role == 'ADMIN':
             self.status = "Paid"
             self.save()
         else:

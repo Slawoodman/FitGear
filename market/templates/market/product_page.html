@@ -1,0 +1,102 @@
+{% extends 'main.html' %}
+{% block content %}
+<div class="product-details">
+    <div class="product-image">
+        <img src="{{product.image.url}}" alt="Product Image">
+    </div>
+    <div class="product-description">
+        <h1 class="h1">{{product.name}}</h1>
+        <p>{{product.short_description}}</p>
+        <div class="price">Price: ${{product.price}}</div>
+        <div class="quantity">
+            <div class="quantity-label-wrapper">
+                <span class="quantity-label">Quantity:</span>
+            </div>
+            <input type="number" id="quantity-input" class="quantity-input" value="1" min="1">
+            <button class="decrease-quantity">-</button>
+            <button class="increase-quantity">+</button>
+        </div>
+        <button class="buy-button">Add to Cart</button>
+    </div>
+</div>
+<div class="product-tabs">
+  <button class="tab-button active" data-tab="description">Description</button>
+  <button class="tab-button" data-tab="ingredients">Ingredients & Nutrition</button>
+  <button class="tab-button" data-tab="reviews">Reviews</button>
+</div>
+<div class="tab-content">
+  <div class="tab-pane active" id="description">
+    <div class="product-description">{{product.description|safe}}</div>
+  </div>
+  <div class="tab-pane" id="ingredients">
+    <div class="product-description">
+      <p>All flavours contain milk and Soy.</p>
+      <h3>Ingredients</h3>
+      <ul>
+        <!-- List of ingredients -->
+      </ul>
+      <h3>Nutrition Facts</h3>
+      <table>
+        <!-- Nutritional information table -->
+      </table>
+    </div>
+  </div>
+  <div class="tab-pane" id="reviews">
+    <div class="product-description">
+      <h3>Customer Reviews</h3>
+      <!-- Reviews or a placeholder for reviews -->
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const increaseButton = document.querySelector('.increase-quantity');
+    const decreaseButton = document.querySelector('.decrease-quantity');
+    const quantityInput = document.querySelector('.quantity-input');
+
+    increaseButton.addEventListener('click', function() {
+      let currentValue = parseInt(quantityInput.value);
+      currentValue++;
+      quantityInput.value = currentValue;
+    });
+
+    decreaseButton.addEventListener('click', function() {
+      let currentValue = parseInt(quantityInput.value);
+      if (currentValue > 1) {
+        currentValue--;
+        quantityInput.value = currentValue;
+      }
+    });
+  });
+
+  const tabButtons = document.querySelectorAll('.tab-button');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+
+  tabButtons.forEach((button, index) => {
+    button.addEventListener('click', () => {
+      // Remove active class from all buttons and content panes
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tabPanes.forEach(pane => pane.classList.remove('active'));
+
+      // Add active class to the clicked button and corresponding content pane
+      button.classList.add('active');
+      tabPanes[index].classList.add('active');
+    });
+  });
+</script>
+
+<style>
+  .quantity-input::-webkit-inner-spin-button,
+  .quantity-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .quantity-input {
+    -moz-appearance: textfield;
+  }
+  .quantity-label {
+    margin-right: 5px;
+  }
+</style>
+{% endblock %}

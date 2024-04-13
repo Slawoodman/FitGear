@@ -4,7 +4,7 @@
 <section>
   {% if orders %}
   <form method="GET" action="" class="filter-form">
-    {% if request.user.role == 'BOOKER' %}
+    {% if request.user.role == 'ADMIN' %}
       <label for="from">From:</label>
       <input type="date" id="from" name="from">
     
@@ -32,7 +32,6 @@
         <th>Status</th>
         {% if request.user.role != 'USER' %}
           <th>Change Status</th>
-        {% elif request.user.role == 'CASHIER' %}
           <th>Generate Bill</th>
         {% endif %}
       </tr>
@@ -58,7 +57,7 @@
           {% if order.file %}
             <td><a href="{% url 'genpayment' pk=order.id %}">Recreate Payment Bill</a></td>
             <td><a href="{% url 'view_html' pk=order.id %}">Open Payment Bill</a></td>
-          {% elif request.user.role in 'BOOKERCASHIER' %}
+          {% elif request.user.role in 'ADMIN' %}
             <td><a href="{% url 'genpayment' pk=order.id %}">Create Payment Bill</a></td>
           {% endif %}
         {% elif request.user.role != 'USER' %}

@@ -79,6 +79,21 @@ class ProductReview(models.Model):
         return self.rating
 
 
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return str(f"{self.user}'s cart")
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=0)
+
+
 class OrderItem(models.Model):
     STATUS_CHOICES = (
         ("Undecided", "UNDECIDED"),

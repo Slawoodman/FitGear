@@ -8,6 +8,9 @@ urlpatterns = [
     path("orders/", views.GetOrdersView.as_view(), name="showorders"),
     path("checkout/<int:pk>", views.MarkOrderItemAsPaidView.as_view(), name="checkout"),
 
+
+    path("cart/", views.cart_view, name="cart"),
+    path("add-item/<int:pk>", views.add_to_cart, name="add-to-cart"),
     path(
         "payment/<int:pk>", views.GeneratePaymentHtmlView.as_view(), name="genpayment"
     ),

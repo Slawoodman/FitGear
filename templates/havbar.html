@@ -30,7 +30,7 @@
     <ul class="nav navbar-nav navbar-right">
       {% if request.user.is_authenticated %}
       <li><p class="navbar-text">Hey, {{ request.user }}</p></li>
-      <li><a href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Cart</a></li>
+      <li><a href="{% url 'cart'%}"><span class="glyphicon glyphicon-shopping-cart"></span> Cart</a></li>
       {% endif %}
     </ul>
   </div>

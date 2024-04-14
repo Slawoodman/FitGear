@@ -16,7 +16,7 @@
             <button class="decrease-quantity">-</button>
             <button class="increase-quantity">+</button>
         </div>
-        <button class="buy-button">Add to Cart</button>
+        <button class="buy-button" id="add-to-cart-btn" data-product-id="{{ product.id }}">Add to Cart</button>
     </div>
 </div>
 <div class="product-tabs">
@@ -88,6 +88,19 @@
       tabPanes[index].classList.add('active');
     });
   });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const addToCartButton = document.getElementById('add-to-cart-btn');
+    const quantityInput = document.getElementById('quantity-input');
+
+    addToCartButton.addEventListener('click', function() {
+        const productId = addToCartButton.getAttribute('data-product-id');
+        const quantity = quantityInput.value;
+        const url = `/add-item/${productId}?quantity=${quantity}`;
+        window.location.href = url;
+    });
+});
+
 </script>
 
 <style>

@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.core.files.base import ContentFile
 from django.views import View
 from django.http import HttpResponse
-from .models import Product, OrderItem
+from .models import Product, OrderItem, Cart, CartItem
 from .forms import OrderCreatForm
 from .utils import get_choices, filter_orders
 import mimetypes
@@ -22,6 +22,27 @@ class MainPageView(View):
 
         # Render the 'main.html' template, passing in the context
         return render(request, "market/main.html", context)
+
+
+
+def cart_view(request):
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    total_price = sum([item.quantity * item.product.price for item in cart.items.all()])
+    return render(request, 'market/cart.html', {'cart': cart, 'total_price': total_price})
+
+
+def add_to_cart(request, pk):
+    product = get_object_or_404(Product, id=pk)
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    cart_item.quantity += int(request.GET['quantity'])
+    cart_item.save()
+    return redirect('cart')
+
+def remove_from_cart(request, cart_item_id):
+    cart_item = get_object_or_404(CartItem, id=cart_item_id)
+    cart_item.delete()
+    return redirect('cart')
 
 
 def product_view(request, pk):

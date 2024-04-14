@@ -20,7 +20,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     short_description = models.TextField(max_length=200, blank=True, null=True)
     description = RichTextField()
-    discounted_price = models.DecimalField(
+    old_price = models.DecimalField(
         default=None, max_digits=10, decimal_places=2, blank=True, null=True
     )
     created = models.DateTimeField(
@@ -33,7 +33,7 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         self.make_sale
-        print(self.discounted_price)
+        print(self.old_price)
         super().save(*args, **kwargs)
 
 
@@ -41,9 +41,10 @@ class Product(models.Model):
     def make_sale(self):
         if self.created and self.created.date() < timezone.now().date() - timedelta(
             days=30):
-            self.discounted_price = self.price * Decimal(0.8)
+            self.old_price = self.price * Decimal(0.8)
+            self.price =  self.price * Decimal(0.8)
         else:
-            self.discounted_price = None
+            self.old_price = None
 
 
 class ProductImages(models.Model):
@@ -92,6 +93,13 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0)
+    price_sum = models.PositiveIntegerField(default=0)
+
+
+    def save(self, *args, **kwargs):
+        self.price_sum = self.product.price * self.quantity
+        super().save(*args, **kwargs)
+
 
 
 class OrderItem(models.Model):

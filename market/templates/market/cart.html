@@ -170,6 +170,39 @@
             background-position-x: 95%;
             background-position-y: center;
         }
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-input-wrapper {
+    margin: 0 8px;
+}
+
+.quantity-input {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    padding: 2px;
+    border: 1px solid #ccc;
+    /* Убираем ползунки внутри поля ввода */
+    -moz-appearance: textfield;
+}
+
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.decrease-quantity,
+.increase-quantity {
+    border: none;
+    padding: 6px 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
     </style>
 </head>
 <body className='snippet-body'>
@@ -179,22 +212,29 @@
                 <div class="title">
                     <div class="row">
                         <div class="col"><h4><b>Shopping Cart</b></h4></div>
-                        <div class="col align-self-center text-right text-muted">{{cart.items.all.count}} items</div>
+                        <div class="col align-self-center text-right text-muted">{{ cart.items.all.count }} items</div>
                     </div>
                 </div>
+                {% if cart.items.all %}
                 {% for item in cart.items.all %}
                 <div class="row border-top border-bottom">
                     <div class="row main align-items-center">
-                        <div class="col-2"><img class="img-fluid" src="{{item.product.image.url}}"></div>
+                        <div class="col-2"><img class="img-fluid" src="{{ item.product.image.url }}"></div>
                         <div class="col">
-                            <div class="row text-muted">{{item.product.category}}</div>
-                            <div class="row">{{item.product}}</div>
+                            <div class="row text-muted">{{ item.product.category }}</div>
+                            <div class="row">{{ item.product }}</div>
                         </div>
                         <div class="col">
-                            <a href="#">-</a><a href="#" class="border">{{item.quantity}}</a><a href="#">+</a>
+                            <button class="decrease-quantity">-</button>
+                            <input type="number" id="quantity-input-{{ item.id }}" class="quantity-input" value="{{ item.quantity }}" min="1" data-item-id="{{ item.id }}">
+                            <button class="increase-quantity">+</button>
                         </div>
-                        <div class="col">&euro; {{item.product.price}} </div>
-                        <div class="col">&euro; {{ item.price_sum }}<span class="close">&#10005;</span></div>
+                        <div class="col" >&euro; {{ item.product.price }}</div>
+                        <div class="col" id="item-price-{{ item.id }}">&euro; {{ item.price_sum }}
+
+                        <span class="close"><a href="{% url 'remove-item' cart_item_id=item.id %}">&#10005;</a>
+                        </span>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -204,8 +244,8 @@
                 <div><h5><b>Summary</b></h5></div>
                 <hr>
                 <div class="row">
-                    <div class="col" style="padding-left:0;">ITEMS 3</div>
-                    <div class="col text-right">&euro; {{total_price}}</div>
+                    <div class="col" style="padding-left:0;">ITEMS {{ cart.items.all.count }}</div>
+                    <div class="col text-right" id="total-price">&euro; {{ total_price }}</div>
                 </div>
                 <form>
                     <p>SHIPPING</p>
@@ -213,16 +253,104 @@
                 </form>
                 <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
                     <div class="col">TOTAL PRICE</div>
-                    <div class="col text-right">&euro;{{total_price}}</div>
+                    <div class="col text-right">&euro;{{ total_price }}</div>
                 </div>
                 <button class="btn">CHECKOUT</button>
             </div>
+            {% else %}
+                <p>Your Shopping cart is empty</p>
+            {% endif %}
         </div>
     </div>
     <script type='text/javascript' src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js'></script>
-    <script type='text/javascript'>var myLink = document.querySelector('a[href="#"]');
-        myLink.addEventListener('click', function(e) {
-            e.preventDefault();
+    <script type='text/javascript'>
+        document.addEventListener('DOMContentLoaded', function() {
+            const decreaseButtons = document.querySelectorAll('.decrease-quantity');
+            const increaseButtons = document.querySelectorAll('.increase-quantity');
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+
+            const csrftoken = getCookie('csrftoken'); // Получаем CSRF-токен из cookies
+
+            increaseButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    const itemId = input.dataset.itemId;
+                    let currentValue = parseInt(input.value);
+                    currentValue++;
+                    input.value = currentValue;
+                    updateCartItem(itemId, currentValue);
+                });
+            });
+
+            decreaseButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const input = button.parentElement.querySelector('.quantity-input');
+                    const itemId = input.dataset.itemId;
+                    let currentValue = parseInt(input.value);
+                    if (currentValue > 1) {
+                        currentValue--;
+                        input.value = currentValue;
+                        updateCartItem(itemId, currentValue);
+                    }
+                });
+            });
+
+            quantityInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const itemId = this.dataset.itemId;
+                    const newQuantity = parseInt(this.value);
+                    updateCartItem(itemId, newQuantity);
+                });
+            });
+
+            function updateCartItem(itemId, quantity) {
+                fetch(`/update-cart-item/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken // Передаем CSRF-токен в заголовок запроса
+                    },
+                    body: JSON.stringify({ item_id: itemId, quantity: quantity })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Cart item updated successfully');
+                        // Обновляем количество товара на странице только после успешного ответа
+                        const input = document.querySelector(`#quantity-input-${itemId}`);
+                        input.value = quantity;
+
+                        // Обновляем все цены товаров
+                        const itemPriceElements = document.querySelectorAll(`#item-price-${itemId}`);
+                        itemPriceElements.forEach(element => {
+                            element.textContent = `€${data.item_price}`;
+                        });
+
+                        // Обновляем общую стоимость заказа на странице
+                        const totalPriceElement = document.querySelector('#total-price');
+                        totalPriceElement.textContent = `€${data.total_price}`;
+                    } else {
+                        console.error(data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            // Функция для получения CSRF-токена из cookies
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.startsWith(name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
         });
     </script>
 </body>

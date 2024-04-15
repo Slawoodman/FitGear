@@ -95,11 +95,9 @@ class CartItem(models.Model):
     quantity = models.PositiveIntegerField(default=0)
     price_sum = models.PositiveIntegerField(default=0)
 
-
     def save(self, *args, **kwargs):
         self.price_sum = self.product.price * self.quantity
         super().save(*args, **kwargs)
-
 
 
 class OrderItem(models.Model):

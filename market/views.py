@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.template.loader import render_to_string
+from django.http import JsonResponse
+import json
 from django.core.files.base import ContentFile
 from django.views import View
 from django.http import HttpResponse
@@ -24,7 +26,6 @@ class MainPageView(View):
         return render(request, "market/main.html", context)
 
 
-
 def cart_view(request):
     cart, created = Cart.objects.get_or_create(user=request.user)
     total_price = sum([item.quantity * item.product.price for item in cart.items.all()])
@@ -38,6 +39,36 @@ def add_to_cart(request, pk):
     cart_item.quantity += int(request.GET['quantity'])
     cart_item.save()
     return redirect('cart')
+
+
+def update_cart_item(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        item_id = data.get('item_id')
+        new_quantity = data.get('quantity')
+
+        print(data)
+        try:
+            cart_item = CartItem.objects.get(id=item_id)
+            cart_item.quantity = new_quantity
+            cart_item.save()
+
+            # Пересчитываем price_sum для всех элементов корзины
+            cart = cart_item.cart
+            for item in cart.items.all():
+                item.price_sum = item.product.price * item.quantity
+                item.save()
+
+            # Обновляем общую стоимость заказа
+            total_price = sum([item.price_sum for item in cart.items.all()])
+
+            return JsonResponse({'success': True, 'total_price': total_price})
+        except CartItem.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Cart item not found'})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
 
 def remove_from_cart(request, cart_item_id):
     cart_item = get_object_or_404(CartItem, id=cart_item_id)

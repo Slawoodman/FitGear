@@ -121,13 +121,11 @@ class OrderItem(models.Model):
     customer = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
     file = models.FileField(default="", null=True, blank=True)
     is_paid = models.BooleanField(default=False, null=True, blank=True)
-
-    status = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default="Undecided"
-    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="Undecided")
+    phone = models.CharField(max_length=20, default="")  # Поле для телефона
 
     def __str__(self):
-        return "{}".format(self.id)
+        return f"OrderItem {self.id}"
 
     def save(self, *args, **kwargs):
         if self.product.discounted_price:
@@ -136,7 +134,6 @@ class OrderItem(models.Model):
             self.price = self.product.price
         return super().save(*args, **kwargs)
 
-
     def status_to_pading(self):
         if self.customer.role == 'ADMIN':
             self.status = "Paid"
@@ -144,6 +141,5 @@ class OrderItem(models.Model):
         else:
             self.is_paid = True
             self.save()
-        
-        
+
 

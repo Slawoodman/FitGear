@@ -51,6 +51,7 @@ def update_cart_item(request):
         try:
             cart_item = CartItem.objects.get(id=item_id)
             cart_item.quantity = new_quantity
+            cart_item.price_sum =  cart_item.quantity * cart_item.product.price
             cart_item.save()
 
             # Пересчитываем price_sum для всех элементов корзины

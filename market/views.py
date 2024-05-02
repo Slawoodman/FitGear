@@ -6,8 +6,8 @@ import json
 from django.core.files.base import ContentFile
 from django.views import View
 from django.http import HttpResponse
-from .models import Product, OrderItem, Cart, CartItem
-from .forms import OrderCreatForm
+from .models import Product, OrderItem, Cart, CartItem, ProductReview
+from .forms import OrderCreatForm, ReviewCreatForm
 from .utils import get_choices, filter_orders
 import mimetypes
 
@@ -79,8 +79,20 @@ def remove_from_cart(request, cart_item_id):
 
 def product_view(request, pk):
     product = get_object_or_404(Product, id=pk)
+    reviews = ProductReview.objects.filter(product=product)
+    form = ReviewCreatForm()
+    if request.method == "POST":
+        form = ReviewCreatForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.save()
+    
     context = {}
     context['product'] = product
+    context['reviews'] = reviews
+    context['form'] = form
     return render(request, 'market/product_page.html', context)
 
 

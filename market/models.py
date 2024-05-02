@@ -19,13 +19,10 @@ RATING = (
 class Category(models.Model):
     cid = ShortUUIDField(unique=True, length=10, max_length=30, prefix='cat')
     name = models.CharField(max_length=100, blank=True, null=True)
-    image = models.ImageField(upload_to="category", default="category.jpg")
 
     class Meta:
         verbose_name_plural = "Categories"
     
-    def category_image(self):
-        return mark_safe('<img src="%s" width="50" heigth="50"/>' % (self.image.url))
         
     def __str__(self):
         return str(self.name)

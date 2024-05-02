@@ -2,12 +2,12 @@
 {% block content %}
 <div class="product-details">
     <div class="product-image">
-        <img src="{{product.image.url}}" alt="Product Image">
+        <img src="{{ product.image.url }}" alt="Product Image">
     </div>
     <div class="product-description">
-        <h1 class="h1">{{product.name}}</h1>
-        <p>{{product.short_description}}</p>
-        <div class="price">Price: ${{product.price}}</div>
+        <h1 class="h1">{{ product.name }}</h1>
+        <p>{{ product.short_description }}</p>
+        <div class="price">Price: ${{ product.price }}</div>
         <div class="quantity">
             <div class="quantity-label-wrapper">
                 <span class="quantity-label">Quantity:</span>
@@ -26,7 +26,7 @@
 </div>
 <div class="tab-content">
   <div class="tab-pane active" id="description">
-    <div class="product-description">{{product.description|safe}}</div>
+    <div class="product-description">{{ product.description|safe }}</div>
   </div>
   <div class="tab-pane" id="ingredients">
     <div class="product-description">
@@ -34,13 +34,13 @@
       {% for row in product.product_info.all %}
         <tr>
           {% if row.parametrs %}
-            <th>{{row.parametrs}}</th>
-            {% else %}
-              <th></th>
-            {% endif %}
-            <td>
-              <p>{{row.parameter_description}}</p>
-            </td>
+            <th>{{ row.parametrs }}</th>
+          {% else %}
+            <th></th>
+          {% endif %}
+          <td>
+            <p>{{ row.parameter_description }}</p>
+          </td>
         </tr>
       {% endfor %}
     </div>
@@ -48,7 +48,37 @@
   <div class="tab-pane" id="reviews">
     <div class="product-description">
       <h3>Customer Reviews</h3>
-      <!-- Reviews or a placeholder for reviews -->
+      <div id="existing-reviews">
+        {% for review in reviews %}
+          <div class="review">
+            <div class="review-header">
+              <div class="review-rating">
+                  <span class="star">{{review.rating}}&#9733;</span>
+              </div>
+              <div class="review-author">{{ review.user.username }}</div>
+              <div class="review-date">{{ review.date }}</div>
+            </div>
+            <div class="review-body">{{ review.review }}</div>
+          </div>
+        {% endfor %}
+      </div>
+      <form id="review-form" method="POST"> 
+        {% csrf_token %}
+        <div class="form-header">
+          <h4>Add Your Review</h4>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.review.id_for_label }}">Your Review:</label>
+          {{ form.review }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.rating.id_for_label }}">Rating:</label>
+          {{ form.rating }}
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="buy-button" id="add-to-cart-btn">Submit Review</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -99,7 +129,7 @@
         const url = `/add-item/${productId}?quantity=${quantity}`;
         window.location.href = url;
     });
-});
+  });
 
 </script>
 

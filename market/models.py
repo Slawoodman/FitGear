@@ -1,5 +1,7 @@
 from ckeditor.fields import RichTextField
 from datetime import timedelta, datetime
+from shortuuid.django_fields import ShortUUIDField
+from django.utils.html import mark_safe
 from django.utils import timezone
 from users.models import User
 from django.db import models
@@ -14,7 +16,23 @@ RATING = (
 )
 
 
+class Category(models.Model):
+    cid = ShortUUIDField(unique=True, length=10, max_length=30, prefix='cat')
+    name = models.CharField(max_length=100, blank=True, null=True)
+    image = models.ImageField(upload_to="category", default="category.jpg")
+
+    class Meta:
+        verbose_name_plural = "Categories"
+    
+    def category_image(self):
+        return mark_safe('<img src="%s" width="50" heigth="50"/>' % (self.image.url))
+        
+    def __str__(self):
+        return str(self.name)
+
+
 class Product(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=150, blank=True, null=True)
     image = models.ImageField(upload_to='products/', default='/default/image.jpg')
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -26,6 +44,7 @@ class Product(models.Model):
     created = models.DateTimeField(
         auto_now_add=False, blank=True, null=True, default=timezone.now
     )
+
 
     def __str__(self):
         return self.name

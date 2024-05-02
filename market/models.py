@@ -99,47 +99,40 @@ class CartItem(models.Model):
         self.price_sum = self.product.price * self.quantity
         super().save(*args, **kwargs)
 
+    def __str__(self) -> str:
+        return str(f"{self.product} product at  {self.cart.user} cart")
+
 
 class OrderItem(models.Model):
+    order_of_item = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='order_items', blank=True, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True, null=True)
+    quantity = models.PositiveIntegerField(default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
+
+
+class Order(models.Model):
     STATUS_CHOICES = (
         ("Undecided", "UNDECIDED"),
         ("Paid", "PAID"),
         ("Completed", "COMPLETED"),
     )
-
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_item')
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     address = models.CharField(max_length=250, default="")
     postal_code = models.CharField(max_length=20, default="")
     city = models.CharField(max_length=100, default="")
-    created = models.DateTimeField(
-        auto_now_add=False, blank=True, null=True, default=timezone.now
-    )
-    updated = models.DateTimeField(
-        auto_now_add=False, blank=True, null=True, default=timezone.now
-    )
-    customer = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=False, blank=True, null=True, default=timezone.now)
+    updated = models.DateTimeField(auto_now_add=False, blank=True, null=True, default=timezone.now)
     file = models.FileField(default="", null=True, blank=True)
     is_paid = models.BooleanField(default=False, null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="Undecided")
-    phone = models.CharField(max_length=20, default="")  # Поле для телефона
+    phone = models.CharField(max_length=20, default="")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"OrderItem {self.id}"
-
-    def save(self, *args, **kwargs):
-        if self.product.discounted_price:
-            self.price = self.product.discounted_price
-        else:
-            self.price = self.product.price
-        return super().save(*args, **kwargs)
-
-    def status_to_pading(self):
-        if self.customer.role == 'ADMIN':
-            self.status = "Paid"
-            self.save()
-        else:
-            self.is_paid = True
-            self.save()
-
-
+        return f"Order #{self.id} by {self.user.username}"

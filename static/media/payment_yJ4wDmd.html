@@ -402,10 +402,10 @@
       letter-spacing: -8;
     }
     .sig img {
-      max-width: 150px; /* РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РјР°РєСЃРёРјР°Р»СЊРЅСѓСЋ С€РёСЂРёРЅСѓ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ */
-      height: 150px; /* Р’С‹СЃРѕС‚Р° Р±СѓРґРµС‚ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°С‚СЊСЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё */
-      display: block; /* РЈР±РёСЂР°РµРј РѕС‚СЃС‚СѓРїС‹ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ inline-СЌР»РµРјРµРЅС‚РѕРІ */
-      margin: 0 auto; /* Р¦РµРЅС‚СЂРёСЂСѓРµРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕ */
+      max-width: 150px; /* Устанавливаем максимальную ширину изображения */
+      height: 150px; /* Высота будет масштабироваться автоматически */
+      display: block; /* Убираем отступы по умолчанию для inline-элементов */
+      margin: 0 auto; /* Центрируем изображение горизонтально */
     }
   </style>
 </head>
@@ -424,13 +424,13 @@
                 <td class="line">This is the check of the product. U'r personal information:</td>
               </tr>
               <tr>
-                <td class="empty line"><p>{{order_item.address}} - {{order_item.postal_code}}</p></td>
+                <td class="empty line"><p>wer - wer</p></td>
               </tr>
               <tr>
-                <td class="empty line"><p>{{order_item.department_number}}</p></td>
+                <td class="empty line"><p>wer</p></td>
               </tr>
             </table>
-            <div class="number">{{order_item.id}}</div>
+            <div class="number">3</div>
           </div>
           <table class="info">
             <thead>
@@ -444,30 +444,30 @@
             </thead>
             <tbody>
               <tr>
-                <td class="blank short"><p>{{order_item.updated}}</p></td>
-                <td class="blank long"><p>{{order_item.customer}}</p></td>
-                <td class="blank short"><p>{{order_item.id}}</p></td>
+                <td class="blank short"><p>May 3, 2024, 2:49 a.m.</p></td>
+                <td class="blank long"><p>te</p></td>
+                <td class="blank short"><p>3</p></td>
                 <td class="blank long des">
-                {% for item in order_item.order_items.all %}
-                    <p>{{ item.product }} - {{ item.quantity }}</p>
-                {% endfor %}
+                
+                    <p>Optimum Nutrition Gold Standard 100% - 3</p>
+                
                 </td>
-                <td class="short" id="discount"><p>{{order_item.total_price}}</p></td>
+                <td class="short" id="discount"><p>60.00</p></td>
               </tr>
             </tbody>
           </table>
           <div class="amount">
             <span class="amounts"><p>check</p> <p>amount</p></span>
             <div class="box">
-              <div class="whole"><p>{{order_item.total_price}}</p></div>
+              <div class="whole"><p>60.00</p></div>
             </div>
           </div>
           <table class="add">
             <tr>
-              <td class="lines"><p>{{order_item.customer.first_name}}</p></td>
+              <td class="lines"><p>test</p></td>
             </tr>
             <tr>
-              <td class="lines"><p>{{order_item.customer.email}}</p></td>
+              <td class="lines"><p>slawoodmen@gmail.com</p></td>
             </tr>
             <tr>
               <td class="bank">Bank Name, N.A.</td>
@@ -478,7 +478,7 @@
               <td class="sig"><a href="https://ibb.co/ZXQJ7qG"><img src="https://i.ibb.co/ZXQJ7qG/image.png" alt="image" border="0"></a></td>
             </tr>
             <tr>
-              <td><p>{{order_item.customer.email}}</p></td>
+              <td><p>slawoodmen@gmail.com</p></td>
               <td class="mp"><p>Paid</p></td>
             </tr>
           </table>

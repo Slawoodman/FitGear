@@ -136,7 +136,6 @@ class Order(models.Model):
         ("Completed", "COMPLETED"),
     )
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     address = models.CharField(max_length=250, default="")
     postal_code = models.CharField(max_length=20, default="")
     department_number = models.CharField(max_length=100, default="")

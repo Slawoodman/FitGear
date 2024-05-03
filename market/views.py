@@ -6,33 +6,46 @@ import json
 from django.core.files.base import ContentFile
 from django.views import View
 from django.http import HttpResponse
-from .models import Product, OrderItem, Cart, CartItem, ProductReview, Order
+from .models import Product, OrderItem, Cart, CartItem, ProductReview, Order, Category
 from .forms import OrderCreatForm, ReviewCreatForm
 from .utils import get_choices, filter_orders
 import mimetypes
 from django.db import transaction
 
+
 # Class based view to display the main page
 class MainPageView(View):
-    # Function to handle HTTP GET requests. It fetches all the products and renders the main page.
     def get(self, request):
-        # Fetch all product objects from the database
+        # Fetch all categories from the database
+        categories = Category.objects.all()
+
+        # Initialize the products queryset
         products = Product.objects.all()
 
-        # Define context variables that are passed to the template.
-        context = {"products": products}
+        # Check if a category filter is applied
+        category_id = request.GET.get('category')
+        if category_id:
+            # Filter products based on the selected category
+            products = products.filter(category_id=category_id)
+
+        # Define context variables that are passed to the template
+        context = {"products": products, "categories": categories}
 
         # Render the 'main.html' template, passing in the context
         return render(request, "market/main.html", context)
 
 
-@transaction.atomic
-def cart_view(request):
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    total_price = sum([item.quantity * item.product.price for item in cart.items.all()])
+class CartView(View):
+    def get(self, request):
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        total_price = sum([item.quantity * item.product.price for item in cart.items.all()])
+        form = OrderCreatForm()
+        return render(request, 'market/cart.html', {'cart': cart, 'total_price': total_price, 'form': form})
 
-    form = OrderCreatForm()
-    if request.method == 'POST':
+    @transaction.atomic
+    def post(self, request):
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        total_price = sum([item.quantity * item.product.price for item in cart.items.all()])
         form = OrderCreatForm(request.POST)
         if form.is_valid():
             with transaction.atomic():
@@ -40,8 +53,6 @@ def cart_view(request):
                 order.customer = request.user
                 order.total_price = total_price
                 order.save()
-                
-                # Create OrderItem instances for each item in the cart
                 for cart_item in cart.items.all():
                     order_item = OrderItem.objects.create(
                         order_of_item=order,
@@ -49,76 +60,77 @@ def cart_view(request):
                         quantity=cart_item.quantity,
                         price=cart_item.price_sum
                     )
-                
-                # Clear the cart after successfully placing the order
                 cart.items.all().delete()
-                
-                return redirect('showorders')
-
-    return render(request, 'market/cart.html', {'cart': cart, 'total_price': total_price, 'form': form})
-
-def add_to_cart(request, pk):
-    product = get_object_or_404(Product, id=pk)
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-    cart_item.quantity += int(request.GET['quantity'])
-    cart_item.save()
-    return redirect('cart')
+            return redirect('showorders')
+        return render(request, 'market/cart.html', {'cart': cart, 'total_price': total_price, 'form': form})
 
 
-def update_cart_item(request):
-    if request.method == 'POST':
+class AddToCartView(View):
+    def get(self, request, pk):
+        product = get_object_or_404(Product, id=pk)
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+        cart_item.quantity += int(request.GET['quantity'])
+        cart_item.save()
+        return redirect('cart')
+
+
+class UpdateCartItemView(View):
+    def post(self, request):
         data = json.loads(request.body)
         item_id = data.get('item_id')
         new_quantity = data.get('quantity')
-
-        print(data)
         try:
             cart_item = CartItem.objects.get(id=item_id)
             cart_item.quantity = new_quantity
-            cart_item.price_sum =  cart_item.quantity * cart_item.product.price
+            cart_item.price_sum = cart_item.quantity * cart_item.product.price
             cart_item.save()
-
-            # Пересчитываем price_sum для всех элементов корзины
             cart = cart_item.cart
             for item in cart.items.all():
                 item.price_sum = item.product.price * item.quantity
                 item.save()
-
-            # Обновляем общую стоимость заказа
             total_price = sum([item.price_sum for item in cart.items.all()])
-
             return JsonResponse({'success': True, 'total_price': total_price})
         except CartItem.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Cart item not found'})
-    else:
-        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
 
 
+class RemoveFromCartView(View):
+    def get(self, request, cart_item_id):
+        cart_item = get_object_or_404(CartItem, id=cart_item_id)
+        cart_item.delete()
+        return redirect('cart')
 
-def remove_from_cart(request, cart_item_id):
-    cart_item = get_object_or_404(CartItem, id=cart_item_id)
-    cart_item.delete()
-    return redirect('cart')
 
+class ProductView(View):
+    def get(self, request, pk):
+        product = get_object_or_404(Product, id=pk)
+        reviews = ProductReview.objects.filter(product=product)
+        form = ReviewCreatForm()
+        context = {
+            'product': product,
+            'reviews': reviews,
+            'form': form
+        }
+        return render(request, 'market/product_page.html', context)
 
-def product_view(request, pk):
-    product = get_object_or_404(Product, id=pk)
-    reviews = ProductReview.objects.filter(product=product)
-    form = ReviewCreatForm()
-    if request.method == "POST":
+    def post(self, request, pk):
+        product = get_object_or_404(Product, id=pk)
         form = ReviewCreatForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
             review.product = product
             review.user = request.user
             review.save()
-    
-    context = {}
-    context['product'] = product
-    context['reviews'] = reviews
-    context['form'] = form
-    return render(request, 'market/product_page.html', context)
+        reviews = ProductReview.objects.filter(product=product)
+        context = {
+            'product': product,
+            'reviews': reviews,
+            'form': form
+        }
+        return render(request, 'market/product_page.html', context)
 
 
 # Class based view to display all orders. It uses the LoginRequiredMixin to ensure that only logged in users can access this view.
@@ -201,7 +213,7 @@ class ChangeOrderStatusView(LoginRequiredMixin, View):
     # Function to handle HTTP GET requests. It displays the form to change the status of an order.
     def get(self, request, pk):
         # Fetch the OrderItem with the provided primary key (pk) or return 404 if it doesn't exist
-        order = get_object_or_404(OrderItem, id=pk)
+        order = get_object_or_404(Order, id=pk)
 
         # Get the status choices for the current order
         choices = get_choices(request, order)
@@ -215,7 +227,7 @@ class ChangeOrderStatusView(LoginRequiredMixin, View):
     # Function to handle HTTP POST requests. It performs the operation of changing the status of an order.
     def post(self, request, pk):
         # Fetch the OrderItem with the provided primary key (pk) or return 404 if it doesn't exist
-        order = get_object_or_404(OrderItem, id=pk)
+        order = get_object_or_404(Order, id=pk)
 
         # Get the status choices for the current order
         choices = get_choices(request, order)
@@ -224,7 +236,7 @@ class ChangeOrderStatusView(LoginRequiredMixin, View):
         status = request.POST.get("status")
 
         # Check if the status is a valid choice
-        if status in dict(OrderItem.STATUS_CHOICES):
+        if status in dict(Order.STATUS_CHOICES):
             # If it's a valid status, change the status of the order and save it
             order.status = status
             order.save()
@@ -241,7 +253,7 @@ class GeneratePaymentHtmlView(LoginRequiredMixin, View):
     # Function to handle HTTP GET requests. It generates a payment HTML file and redirects to the orders page.
     def get(self, request, pk):
         # Fetch the OrderItem with the provided primary key (pk)
-        order_item = OrderItem.objects.get(id=pk)
+        order_item = Order.objects.get(id=pk)
 
         # The filename for the payment HTML file
         file_name = "payment.html"
@@ -264,7 +276,7 @@ class DownloadFileView(LoginRequiredMixin, View):
     # Function to handle HTTP GET requests. It returns the requested file for download.
     def get(self, request, pk):
         # Fetch the OrderItem with the provided primary key (pk)
-        order_item = OrderItem.objects.get(id=pk)
+        order_item = Order.objects.get(id=pk)
 
         # Get the file extension of the order item's file
         file_extension = order_item.file.name.split(".")[-1]

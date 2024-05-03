@@ -139,7 +139,7 @@ class Order(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     address = models.CharField(max_length=250, default="")
     postal_code = models.CharField(max_length=20, default="")
-    city = models.CharField(max_length=100, default="")
+    department_number = models.CharField(max_length=100, default="")
     created = models.DateTimeField(auto_now_add=False, blank=True, null=True, default=timezone.now)
     updated = models.DateTimeField(auto_now_add=False, blank=True, null=True, default=timezone.now)
     file = models.FileField(default="", null=True, blank=True)
@@ -151,4 +151,12 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"Order #{self.id} by {self.user.username}"
+        return f"Order #{self.id} by {self.customer.username}"
+    
+    def status_to_pading(self):
+        if self.customer.role == 'ADMIN':
+            self.status = "Paid"
+            self.save()
+        else:
+            self.is_paid = True
+            self.save()

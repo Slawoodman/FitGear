@@ -6,11 +6,11 @@ import json
 from django.core.files.base import ContentFile
 from django.views import View
 from django.http import HttpResponse
-from .models import Product, OrderItem, Cart, CartItem, ProductReview
+from .models import Product, OrderItem, Cart, CartItem, ProductReview, Order
 from .forms import OrderCreatForm, ReviewCreatForm
 from .utils import get_choices, filter_orders
 import mimetypes
-
+from django.db import transaction
 
 # Class based view to display the main page
 class MainPageView(View):
@@ -26,11 +26,36 @@ class MainPageView(View):
         return render(request, "market/main.html", context)
 
 
+@transaction.atomic
 def cart_view(request):
     cart, created = Cart.objects.get_or_create(user=request.user)
     total_price = sum([item.quantity * item.product.price for item in cart.items.all()])
-    return render(request, 'market/cart.html', {'cart': cart, 'total_price': total_price})
 
+    form = OrderCreatForm()
+    if request.method == 'POST':
+        form = OrderCreatForm(request.POST)
+        if form.is_valid():
+            with transaction.atomic():
+                order = form.save(commit=False)
+                order.customer = request.user
+                order.total_price = total_price
+                order.save()
+                
+                # Create OrderItem instances for each item in the cart
+                for cart_item in cart.items.all():
+                    order_item = OrderItem.objects.create(
+                        order_of_item=order,
+                        product=cart_item.product,
+                        quantity=cart_item.quantity,
+                        price=cart_item.price_sum
+                    )
+                
+                # Clear the cart after successfully placing the order
+                cart.items.all().delete()
+                
+                return redirect('showorders')
+
+    return render(request, 'market/cart.html', {'cart': cart, 'total_price': total_price, 'form': form})
 
 def add_to_cart(request, pk):
     product = get_object_or_404(Product, id=pk)
@@ -101,7 +126,7 @@ class GetOrdersView(LoginRequiredMixin, View):
     # Function to handle HTTP GET requests. It fetches all the order items and renders the order list page.
     def get(self, request):
         # Fetch all OrderItem objects from the database
-        data = OrderItem.objects.all()
+        data = Order.objects.all()
 
         # Filter the orders based on the current request
         orders = filter_orders(request, data)
@@ -162,7 +187,7 @@ class MarkOrderItemAsPaidView(LoginRequiredMixin, View):
     # Function to handle HTTP GET requests. It marks the order item as paid and redirects to the orders page.
     def get(self, request, pk):
         # Fetch the OrderItem with the provided primary key (pk) or return 404 if it doesn't exist
-        order_item = get_object_or_404(OrderItem, id=pk)
+        order_item = get_object_or_404(Order, id=pk)
 
         # Mark the order item as paid
         order_item.status_to_pading()

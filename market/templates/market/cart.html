@@ -203,6 +203,16 @@
     font-size: 16px;
     cursor: pointer;
 }
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    width: 150px; /* Задайте необходимую ширину для лейблов */
+    margin-right: 1rem;
+}
     </style>
 </head>
 <body className='snippet-body'>
@@ -247,15 +257,31 @@
                     <div class="col" style="padding-left:0;">ITEMS {{ cart.items.all.count }}</div>
                     <div class="col text-right" id="total-price">&euro; {{ total_price }}</div>
                 </div>
-                <form>
-                    <p>SHIPPING</p>
-                    <select><option class="text-muted">Standard-Delivery- &euro;5.00</option></select>
+                <form method="POST">
+                    {% csrf_token %}
+                    <p>Order Information</p>
+                    <div class="form-group">
+                        <label for="{{ form.phone.id_for_label }}">Phone Number:</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.address.id_for_label }}">Address:</label>
+                        {{ form.address }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.postal_code.id_for_label }}">Postal Code:</label>
+                        {{ form.postal_code }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.department_number.id_for_label }}">Department Number:</label>
+                        {{ form.department_number }}
+                    </div>
+                    <button type="submit" class="btn">CHECKOUT</button>
                 </form>
                 <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
                     <div class="col">TOTAL PRICE</div>
                     <div class="col text-right">&euro;{{ total_price }}</div>
                 </div>
-                <button class="btn">CHECKOUT</button>
             </div>
             {% else %}
                 <p>Your Shopping cart is empty</p>

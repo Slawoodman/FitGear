@@ -135,9 +135,7 @@ class OrdersAPIView(APIView):
         """
         user = request.user
         orders = filter_orders_by_role(user)
-        serializer = OrderItemSerializer(
-            orders, many=True, context={"request": request}
-        )
+        serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
 
 

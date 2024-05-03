@@ -1,9 +1,16 @@
 from rest_framework import serializers
-from market.models import Product, OrderItem, Order, Cart, CartItem
+from market.models import Product, OrderItem, Order, Cart, CartItem, Category
 from users.models import User
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["name"]
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(many= False)
     class Meta:
         model = Product
         fields = "__all__"

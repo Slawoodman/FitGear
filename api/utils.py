@@ -9,13 +9,8 @@ def filter_orders_by_role(user):
     if role == User.Role.USER:
         return OrderItem.objects.filter(customer=user)
 
-    elif role == User.Role.CASHIER:
-        return OrderItem.objects.filter(status__in=["Undecided", "Paid"])
 
-    elif role == User.Role.CONSULTANT:
-        return OrderItem.objects.filter(status__in=["Paid", "Completed"])
-
-    elif role == User.Role.BOOKER:
+    elif role == User.Role.ADMIN:
         return OrderItem.objects.all()
 
     # Return an empty queryset for unknown roles

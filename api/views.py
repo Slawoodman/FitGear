@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import ProductSerializer, OrderItemSerializer
+from .serializers import ProductSerializer, OrderItemSerializer, OrderSerializer
 from market.models import Product, OrderItem
 from market.forms import OrderCreatForm
 from users.models import User
@@ -111,9 +111,7 @@ class OrdersAPIView(APIView):
             Returns a list of orders based on the user's role.
 
             Available roles:
-                - Booker: All orders
-                - Consultant: Orders that have status "Paid" and "Completed"
-                - Cashier: Orders that have status "Undecided" and "Paid"
+                - Admin: All orders
                 - User: Orders that have been ordered by the current user
 
             Example response:
@@ -127,7 +125,7 @@ class OrdersAPIView(APIView):
                 ...
             ]
         """,
-        responses={200: OrderItemSerializer(many=True)},
+        responses={200: OrderSerializer(many=True)},
         tags=["Orders"],
     )
     def get(self, request):

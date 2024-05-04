@@ -3,6 +3,126 @@ info:
   title: Django DRF FitGear
   version: 0.0.0
 paths:
+  /api/api/login/:
+    post:
+      operationId: login_user
+      description: Authenticate a user and obtain access and refresh tokens.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+              - username
+              - password
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Success
+                examples:
+                  Success Example:
+                    value:
+                      refresh: '...'
+                      access: '...'
+                    name: Success Example
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                description: Invalid credentials
+                examples:
+                  Invalid Credentials Example:
+                    value:
+                      error: Invalid credentials
+                    name: Invalid Credentials Example
+          description: ''
+  /api/api/logout/:
+    post:
+      operationId: logout_user
+      description: Logout a user and invalidate access and refresh tokens.
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: User logged out
+                examples:
+                  User Logged Out Example:
+                    value:
+                      message: User was logged out.
+                    name: User Logged Out Example
+          description: ''
+  /api/api/register/:
+    post:
+      operationId: register_user
+      description: Register a new user and obtain access and refresh tokens.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                password2:
+                  type: string
+              required:
+              - username
+              - email
+              - password
+              - password2
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                description: User created
+                examples:
+                  User Created Example:
+                    value:
+                      refresh: '...'
+                      access: '...'
+                    name: User Created Example
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: Bad request
+                examples:
+                  Bad Request Example:
+                    value:
+                      error: '...'
+                      details: '...'
+                    name: Bad Request Example
+          description: ''
   /api/cart/:
     get:
       operationId: api_cart_retrieve
@@ -151,7 +271,7 @@ paths:
           type: integer
         required: true
       tags:
-      - api
+      - Cart
       requestBody:
         content:
           application/json:

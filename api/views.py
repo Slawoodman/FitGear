@@ -19,6 +19,12 @@ from .utils import filter_orders_by_role
 
 
 from drf_spectacular.utils import extend_schema
+from rest_framework import status
+from users.forms import CustomUserCreationForm
+from users.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.utils.decorators import method_decorator
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class RoutesAPIView(APIView):
@@ -513,3 +519,134 @@ class ChangeOrderStatusAPIView(APIView):
         return Response(
             {"detail": "Only administrators can change the status of an order."},
         )
+
+
+class LoginUserAPIView(APIView):
+    @extend_schema(
+        operation_id="login_user",
+        description="Authenticate a user and obtain access and refresh tokens.",
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "username": {"type": "string"},
+                    "password": {"type": "string"}
+                },
+                "required": ["username", "password"]
+            }
+        },
+        responses={
+            200: {
+                "description": "Success",
+                "examples": {
+                    "Success Example": {
+                        "value": {
+                            "refresh": "...",
+                            "access": "..."
+                        },
+                        "name": "Success Example"
+                    }
+                }
+            },
+            401: {
+                "description": "Invalid credentials",
+                "examples": {
+                    "Invalid Credentials Example": {
+                        "value": {
+                            "error": "Invalid credentials"
+                        },
+                        "name": "Invalid Credentials Example"
+                    }
+                }
+            }
+        },
+    )
+    def post(self, request):
+        username = request.data.get("username", "").lower()
+        password = request.data.get("password", "")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+            return Response({'refresh': str(refresh), 'access': str(refresh.access_token)})
+        else:
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class RegisterUserAPIView(APIView):
+    @extend_schema(
+        operation_id="register_user",
+        description="Register a new user and obtain access and refresh tokens.",
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "username": {"type": "string"},
+                    "email": {"type": "string", "format": "email"},
+                    "password": {"type": "string"},
+                    "password2": {"type": "string"}
+                },
+                "required": ["username", "email", "password", "password2"]
+            }
+        },
+        responses={
+            201: {
+                "description": "User created",
+                "examples": {
+                    "User Created Example": {
+                        "value": {
+                            "refresh": "...",
+                            "access": "..."
+                        },
+                        "name": "User Created Example"
+                    }
+                }
+            },
+            400: {
+                "description": "Bad request",
+                "examples": {
+                    "Bad Request Example": {
+                        "value": {
+                            "error": "...",
+                            "details": "..."
+                        },
+                        "name": "Bad Request Example"
+                    }
+                }
+            },
+        },
+    )
+    def post(self, request):
+        form = CustomUserCreationForm(request.data)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+            refresh = RefreshToken.for_user(user)
+            return Response({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"error": "An error occurred during registration.", "details": form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        operation_id="logout_user",
+        description="Logout a user and invalidate access and refresh tokens.",
+        responses={
+            200: {
+                "description": "User logged out",
+                "examples": {
+                    "User Logged Out Example": {
+                        "value": {
+                            "message": "User was logged out."
+                        },
+                        "name": "User Logged Out Example"
+                    }
+                }
+            },
+        },
+    )
+    def post(self, request):
+        logout(request)
+        return Response({"message": "User was logged out."}, status=status.HTTP_200_OK)

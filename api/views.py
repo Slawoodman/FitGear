@@ -3,12 +3,15 @@ from django.template.loader import render_to_string
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import UpdateAPIView
+from drf_spectacular.types import OpenApiTypes
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import ProductSerializer, OrderItemSerializer, OrderSerializer, CartSerializer
+from .serializers import ProductSerializer, OrderItemSerializer, OrderSerializer, CartSerializer, CartItemSerializer
 from market.models import Product, OrderItem, Cart, CartItem
 from market.forms import OrderCreatForm
 from users.models import User
@@ -165,48 +168,49 @@ class AddToCartAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# class UpdateCartItemAPIView(APIView):
-#     @extend_schema(
-#         description="""
-#             Update the quantity of a product in the user's cart.
+class UpdateCartItemAPIView(UpdateAPIView):
+    serializer_class = CartItemSerializer
 
-#             Updates the quantity of a specified product in the user's cart to the specified quantity.
+    @extend_schema(
+        description="Update the quantity of a product in the user's cart.",
+        tags=["Cart"],
+        request=extend_schema(
+            parameters=[
+                OpenApiParameter(
+                    name="quantity",
+                    type=int,
+                    required=True,
+                    location=OpenApiParameter.QUERY,
+                    description="The new quantity of the product.",
+                )
+            ]
+        ),
+    )
+    def put(self, request, pk, quantity):
+        if not quantity:
+            print("Error: Quantity is required.")
+            return Response({"error": "Quantity is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-#             Request Body:
-#                 {
-#                     "item_id": int,  # The ID of the cart item to update.
-#                     "quantity": int  # The new quantity of the product.
-#                 }
-
-#             Returns:
-#                 - `success` (bool): Indicates if the update was successful.
-#                 - `total_price` (float): The updated total price of the cart.
-#         """,
-#         responses={status.HTTP_200_OK: {"success": True, "total_price": 123.45}},
-#         tags=["Cart"],
-#     )
-#     def post(self, request):
-#         data = request.data
-#         item_id = data.get('item_id')
-#         new_quantity = data.get('quantity')
-#         try:
-#             cart_item = CartItem.objects.get(id=item_id)
-#             cart_item.quantity = new_quantity
-#             cart_item.price_sum = cart_item.quantity * cart_item.product.price
-#             cart_item.save()
-#             cart = cart_item.cart
-#             for item in cart.items.all():
-#                 item.price_sum = item.product.price * item.quantity
-#                 item.save()
-#             total_price = sum([item.price_sum for item in cart.items.all()])
-#             return Response({'success': True, 'total_price': total_price})
-#         except CartItem.DoesNotExist:
-#             return Response({'success': False, 'error': 'Cart item not found'}, status=status.HTTP_404_NOT_FOUND)
-#         except Exception as e:
-#             return Response({'success': False, 'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            cart_item = CartItem.objects.get(id=pk, cart__user=request.user)
+            cart_item.quantity = quantity
+            cart_item.price_sum = cart_item.quantity * cart_item.product.price
+            cart_item.save()
+            total_price = sum([item.price_sum for item in cart_item.cart.items.all()])
+            print("Success: Quantity updated successfully.")
+            print(f"Total price: {total_price}")
+            return Response({"success": True, "total_price": total_price}, status=status.HTTP_200_OK)
+        except CartItem.DoesNotExist:
+            print("Error: Cart item not found or does not belong to the current user")
+            return Response({"error": "Cart item not found or does not belong to the current user"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(f"Error: {e}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RemoveFromCartAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # Require authentication to access this view
+
     @extend_schema(
         description="""
             Remove a product from the user's cart.
@@ -224,6 +228,11 @@ class RemoveFromCartAPIView(APIView):
     )
     def delete(self, request, cart_item_id):
         cart_item = get_object_or_404(CartItem, id=cart_item_id)
+
+        # Check if the cart item belongs to the authenticated user
+        if cart_item.cart.user != request.user:
+            return Response({'error': 'You are not authorized to delete this item'}, status=status.HTTP_403_FORBIDDEN)
+
         cart_item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

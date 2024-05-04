@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .serializers import ProductSerializer, OrderItemSerializer, OrderSerializer, CartSerializer, CartItemSerializer
-from market.models import Product, OrderItem, Cart, CartItem
+from market.models import Product, OrderItem, Cart, CartItem, Order
 from market.forms import OrderCreatForm
 from users.models import User
 from .utils import filter_orders_by_role
@@ -294,17 +294,21 @@ class OrderAPIView(APIView):
                 "status": "Pending",
             }
         """,
-        responses={200: OrderItemSerializer()},
+        responses={200: OrderSerializer()},  # Use OrderSerializer instead of OrderItemSerializer
         tags=["Orders"],
     )
     def get(self, request, pk):
         """
         Get an order by ID.
         Returns the details of the specified order.
-
         """
-        order = get_object_or_404(OrderItem, id=pk)
-        serializer = OrderItemSerializer(order)
+        order = get_object_or_404(Order, id=pk)  # Retrieve the order from the Order model
+        # Check if the user is an admin
+        if not request.user.role == User.Role.ADMIN: # Assuming `is_staff` is used to determine admin status
+            # If the user is not an admin, ensure they can only access their own orders
+            if order.customer != request.user:
+                return Response({"detail": "You do not have permission to access this order."}, status=status.HTTP_403_FORBIDDEN)
+        serializer = OrderSerializer(order)
         return Response(serializer.data)
 
 

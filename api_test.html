@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Product List</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+<body>
+    <h1>Product List</h1>
+    <div id="product-container"></div>
+
+    <script>
+let productContainer = document.getElementById('product-container');
+
+let getProducts = async () => {
+    try {
+        let response = await fetch('http://127.0.0.1:8000/api/products/');
+        if (!response.ok) {
+            throw new Error('Failed to fetch products');
+        }
+        let products = await response.json();
+        console.log('Products:', products);
+        products.forEach(product => {
+            let imageUrl = `http://127.0.0.1:8000${product.image}`;
+            let row = `<div>
+                            <h3>${product.name}</h3>
+                            <p>Price: $${product.price}</p>
+                            <img src="${imageUrl}" alt="${product.name}" style="max-width: 200px; max-height: 200px;">
+                            <!-- Add more details as needed -->
+                        </div>`;
+            productContainer.innerHTML += row;
+        });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        productContainer.innerHTML = '<p>Error fetching products. Please try again later.</p>';
+    }
+};
+
+getProducts();
+    </script>
+</body>
+</html>

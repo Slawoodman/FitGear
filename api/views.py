@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny  
 from django.template.loader import render_to_string
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
@@ -62,6 +62,8 @@ class RoutesAPIView(APIView):
 
 
 class ProductsAPIView(APIView):
+    permission_classes = [AllowAny]
+
     @extend_schema(
         description="""
                 Get all products.
@@ -80,6 +82,7 @@ class ProductsAPIView(APIView):
 
 
 class ProductAPIView(APIView):
+    permission_classes = [AllowAny]
     @extend_schema(
         description="""
             Get a product by ID.

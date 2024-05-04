@@ -1,5 +1,5 @@
 from users.models import User
-from market.models import OrderItem
+from market.models import Order
 
 
 def filter_orders_by_role(user):
@@ -7,11 +7,11 @@ def filter_orders_by_role(user):
 
     print(role)
     if role == User.Role.USER:
-        return OrderItem.objects.filter(customer=user)
+        return Order.objects.filter(customer=user)
 
 
     elif role == User.Role.ADMIN:
-        return OrderItem.objects.all()
+        return Order.objects.all()
 
     # Return an empty queryset for unknown roles
-    return OrderItem.objects.none()
+    return Order.objects.none()

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Business Check Template</title>
+  <style>
+    body {
+      background-color: #333333;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .check {
+      position: relative;
+      background-color: #ffffff;
+      width: 970px;
+      height: 370px;
+      border: 5px solid #ffffff;
+      margin: 0 auto;
+    }
+
+    .border {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      border: 2px solid #000000;
+    }
+
+    .container {
+      background-color: #f2f2f2;
+      overflow: hidden;
+      margin: 3px;
+      border: 1px solid #000000;
+    }
+
+    .content {
+      margin: 5px;
+    }
+
+    @import url('https://fonts.googleapis.com/css?family=Damion');
+    @import url('https://fonts.googleapis.com/css?family=Mrs+Saint+Delafield');
+
+    * {
+      box-sizing: border-box;
+      font-family: Helvetica, sans-serif;
+      color: #000000;
+    }
+
+    .one {
+      width: 100%;
+    }
+
+    .title {
+      width: 300px;
+      text-align: center;
+      display: inline-block;
+      margin-left: 25px;
+      margin-bottom: 40px;
+    }
+
+    #bold {
+      font-weight: bold;
+      font-size: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      line-height: 150%;
+    }
+
+    .name {
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.1px;
+    }
+
+    .number {
+      font-family: "Courier New", monospace;
+      font-weight: bold;
+      margin-top: 20px;
+      font-size: 20px;
+      margin-left: 103px;
+      display: inline-block;
+      position: fixed;
+      letter-spacing: 1px;
+    }
+
+    .following {
+      display: inline-block;
+      font-size: 10px;
+      text-transform: uppercase;
+      border: 1px solid #000000;
+      width: 417px;
+      margin-left: 16px;
+      margin-top: 10px;
+      border-collapse: collapse;
+    }
+
+    .line {
+      text-align: center;
+      width: 415px;
+      height: 26px;
+      font-size: 8px;
+      padding: 12px;
+    }
+
+    .empty {
+      border-top: 1px solid #000000;
+    }
+
+    input {
+      font-family: Helvetica, sans-serif;
+      color: #333333;
+      background-color: #f2f2f2;
+      text-align: center;
+      border: none;
+      width: auto;
+      text-transform: uppercase;
+    }
+
+    input[name="reason"], input[name="reason2"] {
+      width: 400px;
+    }
+
+    .two {
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .orderof {
+      font-family: 'Damion', cursive;
+      font-size: 1.5em;
+      border-bottom: 1px solid #333333;
+      float: left;
+      width: 75.9%;
+      position: relative;
+      padding-top: 0;
+      padding: 0 0 0 1em;
+      margin: 0px 0 2px 2em;
+      line-height: 1;
+      height: 32px;
+      border-right: 1px solid #333333;
+    }
+
+    .orderof:before {
+      font-family: Helvetica, sans-serif;
+      font-size: 0.5em;
+      content: 'PAY';
+      position: absolute;
+      left: -3em;
+      top: 1.3em;
+    }
+
+    input[name="amount"] {
+      width: 300px;
+      display: inline-table;
+      height: 20px;
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      position: fixed;
+      top: 158px;
+      text-align: left;
+    }
+
+    .bd {
+      text-align: right;
+      text-transform: uppercase;
+      font-family: Helvetica, sans-serif;
+      font-size: 20px;
+      letter-spacing: 8px;
+    }
+
+    .dollar {
+      text-align: right;
+      text-transform: uppercase;
+      font-family: Helvetica, sans-serif;
+      font-size: 0.5em;
+      margin-left: 298px;
+      position: fixed;
+      top: 162px;
+    }
+
+    .info {
+      border-collapse: collapse;
+      margin-left: 11px;
+      text-align: center;
+      text-transform: uppercase;
+      font-family: Helvetica, sans-serif;
+      font-size: 10px;
+      border: 1px solid #333333;
+      display: inline-table;
+      width: 80%;
+    }
+
+    input[name="date"] {
+      font-size: 13px;
+      width: 56px;
+    }
+
+    input[name="name"] {
+      width: 200px;
+      font-size: 17px;
+    }
+
+    input[name="num"] {
+      width: 50px;
+      font-size: 13px;
+    }
+
+    input[name="description"] {
+      width: 200px;
+      font-size: 14px;
+    }
+
+    input[name="discount"] {
+      width: 50px;
+      font-size: 13px;
+    }
+
+    .chart {
+      border: 1px solid #333333;
+      font-weight: normal;
+    }
+
+    #discount {
+      border-left: 1px dashed #333333;
+    }
+
+    .blank {
+      height: 40px;
+      border: 1px solid #333333;
+      font-size: 14px;
+    }
+
+    .short {
+      width: 79px;
+    }
+
+    .long {
+      width: 300px;
+      font-size: 18px;
+    }
+
+    .des {
+      font-size: 15px;
+    }
+
+    .amount {
+      text-align: center;
+      width: 144px;
+      text-transform: uppercase;
+      font-family: Helvetica, sans-serif;
+      font-size: 11px;
+      margin-right: 30px;
+      float: right;
+      display: inline;
+      position: absolute;
+      right: -7px;
+      top: 144px;
+    }
+
+    .sign {
+      font-family: Helvetica, sans-serif;
+      font-size: 15px;
+      padding-right: 10px;
+      position: fixed;
+      display: inline;
+      right: 620px;
+      top: 209px;
+    }
+
+    p {
+      text-transform: uppercase;
+      font-family: Helvetica, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      display: inline;
+      padding-left: 25px;
+      text-align: center;
+    }
+
+    .box {
+      border: 1px solid #333333;
+      width: 120px;
+      height: 30px;
+      float: right;
+      clear: both;
+      margin-top: 20px;
+    }
+
+    .whole {
+      border-right: 1px dashed #333333;
+      height: 28px;
+      width: 84px;
+      margin-top: 0.7px;
+    }
+        input[name="whole"] {
+      text-align: right;
+      width: 72px;
+      right: 544px;
+      top: 204px;
+      font-size: 18px;
+    }
+
+    input[name="cent"] {
+      text-align: right;
+      width: 23px;
+      display: inline;
+      font-size: 18px;
+      position: absolute;
+      margin-left: 12px;
+    }
+
+    .num {
+      font-family: 'Damion', cursive;
+      font-size: 1.5em;
+      float: left;
+      border: 2px solid #aaaaaa;
+      position: relative;
+      margin: 0 0 0 2em;
+      padding: 0 0.5em;
+      line-height: 0.9em;
+    }
+
+    .num:before {
+      font-family: Helvetica, sans-serif;
+      content: '$';
+      font-weight: bold;
+      position: absolute;
+      left: 1em;
+    }
+
+    .dollars {
+      font-family: 'Damion', cursive;
+      font-size: 1.5em;
+      border-bottom: 1px solid #666666;
+      width: 84%;
+      float: left;
+      padding: 0 0 0 4em;
+      position: relative;
+    }
+
+    .dollars:after {
+      font-family: Helvetica, sans-serif;
+      font-size: 0.5em;
+      content: 'DOLLARS';
+      position: absolute;
+      right: -5em;
+      top: 1.7em;
+    }
+
+    .add {
+      width: 267px;
+      margin-left: 80px;
+      margin-top: 5px;
+    }
+
+    .lines {
+      border-bottom: 1px solid #333333;
+      height: 25px;
+      font-size: 13px;
+      text-align: center;
+      padding: 0;
+      margin: 0;
+    }
+
+    input[name="address"], input[name="citystate"] {
+      font-size: 13px;
+      width: 260px;
+      text-transform: uppercase;
+      padding: 0;
+      margin: 0;
+    }
+
+    .bank {
+      font-size: 9px;
+      text-align: center;
+      font-family: Helvetica, sans-serif;
+      height: 25px;
+      padding-top: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .signature {
+      margin: 0 10px 30px 0.7em;
+      width: 40%;
+      padding-bottom: -13px;
+      right: 10;
+      float: right;
+    }
+
+    .sig {
+      font-family: 'Mrs Saint Delafield', cursive;
+      font-size: 2em;
+      border-bottom: 1px solid #333333;
+      line-height: 0.9em;
+    }
+
+    .mp {
+      text-align: right;
+      font-size: 8px;
+      font-weight: bold;
+      letter-spacing: -8;
+    }
+    .sig img {
+      max-width: 150px; /* Устанавливаем максимальную ширину изображения */
+      height: 150px; /* Высота будет масштабироваться автоматически */
+      display: block; /* Убираем отступы по умолчанию для inline-элементов */
+      margin: 0 auto; /* Центрируем изображение горизонтально */
+    }
+  </style>
+</head>
+<body>
+  <div class="check">
+    <div class="border">
+      <div class="container">
+        <div class="content">
+          <div class="one">
+            <div class="title">
+              <div id="bold">FirGear</div>
+              <div class="name">FirGear official<br>Zaporizhzhia<br>Ukraine</div>
+            </div>
+            <table class="following">
+              <tr>
+                <td class="line">This is the check of the product. U'r personal information:</td>
+              </tr>
+              <tr>
+                <td class="empty line"><p>вап - 53453</p></td>
+              </tr>
+              <tr>
+                <td class="empty line"><p>34534</p></td>
+              </tr>
+            </table>
+            <div class="number">4</div>
+          </div>
+          <table class="info">
+            <thead>
+              <tr>
+                <th class="chart">date</th>
+                <th class="chart">to the order of</th>
+                <th class="chart">check no.</th>
+                <th class="chart">products</th>
+                <th class="chart" id="discount">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="blank short"><p>May 3, 2024, 9:32 p.m.</p></td>
+                <td class="blank long"><p>te</p></td>
+                <td class="blank short"><p>4</p></td>
+                <td class="blank long des">
+                
+                    <p>Optimum Nutrition Gold Standard 100% - 8</p>
+                
+                </td>
+                <td class="short" id="discount"><p>160.00</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="amount">
+            <span class="amounts"><p>check</p> <p>amount</p></span>
+            <div class="box">
+              <div class="whole"><p>160.00</p></div>
+            </div>
+          </div>
+          <table class="add">
+            <tr>
+              <td class="lines"><p>test</p></td>
+            </tr>
+            <tr>
+              <td class="lines"><p>slawoodmen@gmail.com</p></td>
+            </tr>
+            <tr>
+              <td class="bank">Bank Name, N.A.</td>
+            </tr>
+          </table>
+          <table class="signature">
+            <tr>
+              <td class="sig"><a href="https://ibb.co/ZXQJ7qG"><img src="https://i.ibb.co/ZXQJ7qG/image.png" alt="image" border="0"></a></td>
+            </tr>
+            <tr>
+              <td><p>slawoodmen@gmail.com</p></td>
+              <td class="mp"><p>Paid</p></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

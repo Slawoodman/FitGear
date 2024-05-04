@@ -9,7 +9,7 @@ from drf_spectacular.types import OpenApiTypes
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 
 from .serializers import ProductSerializer, OrderItemSerializer, OrderSerializer, CartSerializer, CartItemSerializer
 from market.models import Product, OrderItem, Cart, CartItem, Order
@@ -168,6 +168,7 @@ class AddToCartAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@extend_schema(tags=["Cart"])
 class UpdateCartItemAPIView(UpdateAPIView):
     serializer_class = CartItemSerializer
 
@@ -411,13 +412,13 @@ class OrderPaymentAPIView(APIView):
         """
         Processes the payment for the specified order.
         """
-        order_item = get_object_or_404(OrderItem, id=pk)
+        order = get_object_or_404(Order, id=pk)
         user = request.user
         role = user.role
 
-        if role == User.Role.USER and order_item.customer == user:
+        if role == User.Role.USER and order.customer == user:
             try:
-                order_item.status_to_pading()
+                order.status_to_pading()
                 return Response("Payment successful.", status=status.HTTP_200_OK)
             except:
                 return Response(
@@ -429,7 +430,7 @@ class OrderPaymentAPIView(APIView):
 
 
 class OrderGenBillAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
     @extend_schema(
         description="""
@@ -446,31 +447,21 @@ class OrderGenBillAPIView(APIView):
         responses={200: "Payment is created..."},
         tags=["Orders"],
     )
+       
+
     def post(self, request, pk):
-        """
-        Generate a bill for an order.
-        Generates a bill for the specified order.
+        try:
+            order_item = Order.objects.get(id=pk)
+        except Order.DoesNotExist:
+            return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        """
-        order_item = get_object_or_404(OrderItem, id=pk)
-        user = request.user
+        context = {"order_item": order_item}
+        html_content = render_to_string("market/payment_template.html", context)
 
-        if user.role == User.Role.CASHIER:
-            if order_item.is_paid:
-                file_name = "payment.html"
-                context = {"order_item": order_item}
-                html_content = render_to_string("market/payment_template.html", context)
+        order_item.file.save("payment.html", ContentFile(html_content), save=True)
 
-                with open(file_name, "w") as file:
-                    file.write(html_content)
-
-                return Response("Payment is created...", status=status.HTTP_200_OK)
-            return Response(
-                "The order is not paid.", status=status.HTTP_400_BAD_REQUEST
-            )
-        return Response(
-            "Only cashiers can generate bills.", status=status.HTTP_403_FORBIDDEN
-        )
+        serializer = OrderSerializer(order_item)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ChangeOrderStatusAPIView(APIView):
@@ -488,6 +479,12 @@ class ChangeOrderStatusAPIView(APIView):
             {
                 "detail": "Order status updated successfully."
             }
+                STATUS_CHOICES = (
+                    ("Undecided", "UNDECIDED"),
+                    ("Paid", "PAID"),
+                    ("Completed", "COMPLETED"),
+                    )
+
         """,
         responses={200: "Order status updated successfully."},
         tags=["Orders"],
@@ -503,7 +500,7 @@ class ChangeOrderStatusAPIView(APIView):
         """
         Changes the status of the specified order.
         """
-        order_item = get_object_or_404(OrderItem, id=pk)
+        order_item = get_object_or_404(Order, id=pk)
         user = request.user
 
         if user.role != User.Role.USER:

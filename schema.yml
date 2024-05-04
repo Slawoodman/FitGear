@@ -205,7 +205,10 @@ paths:
         \ the status of the specified order.\n\n            Parameters:\n        \
         \        - `pk` (int): The ID of the order.\n\n            Example response:\n\
         \            {\n                \"detail\": \"Order status updated successfully.\"\
-        \n            }\n        "
+        \n            }\n                STATUS_CHOICES = (\n                    (\"\
+        Undecided\", \"UNDECIDED\"),\n                    (\"Paid\", \"PAID\"),\n\
+        \                    (\"Completed\", \"COMPLETED\"),\n                   \
+        \ )\n\n        "
       parameters:
       - in: path
         name: id

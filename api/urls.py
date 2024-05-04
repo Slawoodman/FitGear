@@ -16,6 +16,12 @@ urlpatterns = [
         views.CreateOrderAPIView.as_view(),
         name="create_order",
     ),
+    
+    path("cart/", views.CartAPIView.as_view(),name="view-cart"),
+    path("cart/add-to-cart/<int:pk>/<int:quantity>/", views.AddToCartAPIView.as_view(), name="add-to-cart"),
+    # path("cart/update-cart-item/", views.UpdateCartItemAPIView.as_view(), name="update-cart-item"),
+    path("cart/remove-from-cart/<int:cart_item_id>/", views.RemoveFromCartAPIView.as_view(), name="remove-from-cart"),
+
     path("orders/", views.OrdersAPIView.as_view(), name="orders"),
     path("orders/<int:pk>/", views.OrderAPIView.as_view(), name="order"),
     path(

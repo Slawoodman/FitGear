@@ -31,12 +31,13 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
-    customer = UserSerializer(many=False)
-    cart_items = CartItemSerializer(many=True)
+    user = UserSerializer(many=False)
+    items = CartItemSerializer(many=True)  # No need for the source argument
 
     class Meta:
         model = Cart
         fields = "__all__"
+
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

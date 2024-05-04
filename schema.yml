@@ -1,21 +1,110 @@
 openapi: 3.0.3
 info:
-  title: Django DRF OrderManager
+  title: Django DRF FitGear
   version: 0.0.0
 paths:
+  /api/cart/:
+    get:
+      operationId: api_cart_retrieve
+      description: "\n        API endpoint for retrieving the user's cart.\n     \
+        \   \n        Retrieves the user's cart details.\n        \n        Responses:\n\
+        \        \n            - 200 OK: Returns the user's cart details.\n      \
+        \  "
+      tags:
+      - Cart
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/cart/add-to-cart/{id}/{quantity}/:
+    post:
+      operationId: api_cart_add_to_cart_create
+      description: Add a product to the user's cart. Increments the quantity of a
+        specified product in the user's cart by the specified quantity.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: quantity
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Cart
+      requestBody:
+        content:
+          type:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+          properties:
+            schema:
+              product_id:
+                type: integer
+                description: The ID of the product to add to the cart.
+                required: true
+              quantity:
+                type: integer
+                description: The quantity of the product to add. Defaults to 1.
+                required: true
+                default: 1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/cart/remove-from-cart/{cart_item_id}/:
+    delete:
+      operationId: api_cart_remove_from_cart_destroy
+      description: "\n            Remove a product from the user's cart.\n\n     \
+        \       Deletes the specified product from the user's cart.\n\n          \
+        \  Parameters:\n                - `cart_item_id` (int): The ID of the cart\
+        \ item to remove.\n\n            Returns:\n                HTTP 204 No Content\
+        \ if the product is successfully removed from the cart.\n        "
+      parameters:
+      - in: path
+        name: cart_item_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Cart
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
   /api/orders/:
     get:
       operationId: api_orders_list
       description: "\n            Get orders based on user role.\n\n            Returns\
         \ a list of orders based on the user's role.\n\n            Available roles:\n\
-        \                - Booker: All orders\n                - Consultant: Orders\
-        \ that have status \"Paid\" and \"Completed\"\n                - Cashier:\
-        \ Orders that have status \"Undecided\" and \"Paid\"\n                - User:\
-        \ Orders that have been ordered by the current user\n\n            Example\
-        \ response:\n            [\n                {\n                    \"id\"\
-        : 1,\n                    \"customer\": \"John Doe\",\n                  \
-        \  \"status\": \"Undecided\",\n                    ...\n                },\n\
-        \                ...\n            ]\n        "
+        \                - Admin: All orders\n                - User: Orders that\
+        \ have been ordered by the current user\n\n            Example response:\n\
+        \            [\n                {\n                    \"id\": 1,\n      \
+        \              \"customer\": \"John Doe\",\n                    \"status\"\
+        : \"Undecided\",\n                    ...\n                },\n          \
+        \      ...\n            ]\n        "
       tags:
       - Orders
       security:
@@ -27,7 +116,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OrderItem'
+                  $ref: '#/components/schemas/Order'
           description: ''
   /api/orders/{id}/:
     get:
@@ -289,7 +378,6 @@ paths:
           - br
           - bs
           - ca
-          - ckb
           - cs
           - cy
           - da
@@ -342,7 +430,6 @@ paths:
           - ml
           - mn
           - mr
-          - ms
           - my
           - nb
           - ne
@@ -457,28 +544,32 @@ paths:
           description: ''
 components:
   schemas:
-    OrderItem:
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          maxLength: 100
+    Order:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
-        product:
-          $ref: '#/components/schemas/Product'
         customer:
           $ref: '#/components/schemas/User'
-        price:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          nullable: true
+        order_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
         address:
           type: string
           maxLength: 250
         postal_code:
           type: string
           maxLength: 20
-        city:
+        department_number:
           type: string
           maxLength: 100
         created:
@@ -498,8 +589,40 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/StatusEnum'
+        phone:
+          type: string
+          maxLength: 20
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
       required:
+      - created_at
       - customer
+      - id
+      - order_items
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          $ref: '#/components/schemas/Product'
+        quantity:
+          type: integer
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        order_of_item:
+          type: integer
+          nullable: true
+      required:
       - id
       - product
     Product:
@@ -508,16 +631,27 @@ components:
         id:
           type: integer
           readOnly: true
+        category:
+          $ref: '#/components/schemas/Category'
         name:
           type: string
           nullable: true
           maxLength: 150
+        image:
+          type: string
+          format: uri
         price:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
           nullable: true
-        discounted_price:
+        short_description:
+          type: string
+          nullable: true
+          maxLength: 200
+        description:
+          type: string
+        old_price:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
@@ -527,6 +661,8 @@ components:
           format: date-time
           nullable: true
       required:
+      - category
+      - description
       - id
     StatusEnum:
       enum:

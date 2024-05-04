@@ -173,33 +173,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/CartItem'
           description: ''
-  /api/orders/:
+  /api/order/{id}/:
     get:
-      operationId: api_orders_list
-      description: "\n            Get orders based on user role.\n\n            Returns\
-        \ a list of orders based on the user's role.\n\n            Available roles:\n\
-        \                - Admin: All orders\n                - User: Orders that\
-        \ have been ordered by the current user\n\n            Example response:\n\
-        \            [\n                {\n                    \"id\": 1,\n      \
-        \              \"customer\": \"John Doe\",\n                    \"status\"\
-        : \"Undecided\",\n                    ...\n                },\n          \
-        \      ...\n            ]\n        "
-      tags:
-      - Orders
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Order'
-          description: ''
-  /api/orders/{id}/:
-    get:
-      operationId: api_orders_retrieve
+      operationId: api_order_retrieve
       description: "\n            Get an order by ID.\n\n            Returns the details\
         \ of the specified order.\n\n            Parameters:\n                - `pk`\
         \ (int): The ID of the order.\n\n            Example response:\n         \
@@ -222,9 +198,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrderItem'
           description: ''
-  /api/orders/{id}/change-status/:
+  /api/order/{id}/change-status/:
     post:
-      operationId: api_orders_change_status_create
+      operationId: api_order_change_status_create
       description: "\n            Change the status of an order.\n            Changes\
         \ the status of the specified order.\n\n            Parameters:\n        \
         \        - `pk` (int): The ID of the order.\n\n            Example response:\n\
@@ -260,9 +236,9 @@ paths:
                 additionalProperties: {}
                 description: Unspecified response body
           description: ''
-  /api/orders/{id}/gen-bill/:
+  /api/order/{id}/gen-bill/:
     post:
-      operationId: api_orders_gen_bill_create
+      operationId: api_order_gen_bill_create
       description: "\n            Generate a bill for an order.\n\n            Generates\
         \ a bill for the specified order.\n\n            Parameters:\n           \
         \     - `pk` (int): The ID of the order.\n\n            Example response:\n\
@@ -286,9 +262,9 @@ paths:
                 additionalProperties: {}
                 description: Unspecified response body
           description: ''
-  /api/orders/{id}/payment/:
+  /api/order/{id}/payment/:
     post:
-      operationId: api_orders_payment_create
+      operationId: api_order_payment_create
       description: "\n            Pay for an order.\n\n            Processes the payment\
         \ for the specified order.\n\n            Parameters:\n                - `pk`\
         \ (int): The ID of the order.\n\n            Example response:\n         \
@@ -311,6 +287,77 @@ paths:
                 type: object
                 additionalProperties: {}
                 description: Unspecified response body
+          description: ''
+  /api/order/create-order/:
+    post:
+      operationId: api_order_create_order_create
+      description: "\n            Create a new order, only User can create one.\n\
+        \            Creates a new order for the specified product.\n\n          \
+        \  Example request body:\n                {\n                    \"address\"\
+        : \"U address\",\n                    \"postal_code\": \"U postal_code\",\n\
+        \                    \"department_number\": \"U department_number\",\n   \
+        \                 \"phone\": \"U phone number\",\n                }\n\n  \
+        \          Example response:\n                \"New order created successfully!\"\
+        \n        "
+      tags:
+      - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  example: U'r address
+                postal_code:
+                  type: string
+                  example: U'r postal_code
+                department_number:
+                  type: string
+                  example: U'r department_number
+                phone:
+                  type: string
+                  example: U'r phone number
+              required:
+              - address
+              - postal_code
+              - department_number
+              - phone
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/orders/:
+    get:
+      operationId: api_orders_list
+      description: "\n            Get orders based on user role.\n\n            Returns\
+        \ a list of orders based on the user's role.\n\n            Available roles:\n\
+        \                - Admin: All orders\n                - User: Orders that\
+        \ have been ordered by the current user\n\n            Example response:\n\
+        \            [\n                {\n                    \"id\": 1,\n      \
+        \              \"customer\": \"John Doe\",\n                    \"status\"\
+        : \"Undecided\",\n                    ...\n                },\n          \
+        \      ...\n            ]\n        "
+      tags:
+      - Orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
           description: ''
   /api/products/:
     get:
@@ -357,53 +404,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
-          description: ''
-  /api/products/{id}/order/create/:
-    post:
-      operationId: api_products_order_create_create
-      description: "\n            Create a new order, only User can create one.\n\
-        \            Creates a new order for the specified product.\n\n          \
-        \  Parameters:\n                - `pk` (int): The ID of the product.\n\n \
-        \           Example request body:\n                {\n                   \
-        \ \"address\": \"U address\",\n                    \"postal_code\": \"U postal_code\"\
-        ,\n                    \"city\": \"U city name\",\n                }\n\n \
-        \           Example response:\n                \"New order created successfully!\n\
-        \        "
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - Products
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                address:
-                  type: string
-                  example: U'r address
-                postal_code:
-                  type: string
-                  example: U'r postal_code
-                city:
-                  type: string
-                  example: U'r city name
-              required:
-              - status
-      security:
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: {}
-                description: Unspecified response body
           description: ''
   /api/routes/:
     get:

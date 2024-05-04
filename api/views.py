@@ -309,66 +309,80 @@ class OrderAPIView(APIView):
 
 
 class CreateOrderAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
+    permission_classes = [IsAuthenticated]  # Assuming IsAuthenticated is imported
+    
     @extend_schema(
         description="""
             Create a new order, only User can create one.
             Creates a new order for the specified product.
 
-            Parameters:
-                - `pk` (int): The ID of the product.
-
             Example request body:
                 {
                     "address": "U address",
                     "postal_code": "U postal_code",
-                    "city": "U city name",
+                    "department_number": "U department_number",
+                    "phone": "U phone number",
                 }
 
             Example response:
-                "New order created successfully!
+                "New order created successfully!"
         """,
         responses={201: "New order created successfully!"},
-        tags=["Products"],
+        tags=["Orders"],
         request={
             "application/json": {
                 "type": "object",
                 "properties": {
                     "address": {"type": "string", "example": "U'r address"},
                     "postal_code": {"type": "string", "example": "U'r postal_code"},
-                    "city": {"type": "string", "example": "U'r city name"},
+                    "department_number": {"type": "string", "example": "U'r department_number"},
+                    "phone": {"type": "string", "example": "U'r phone number"},
                 },
-                "required": ["status"],
+                "required": ["address", "postal_code", "department_number", "phone",],
             },
         },
     )
-    def post(self, request, pk):
+    def post(self, request):
         """
-        Creates a new order for the specified product.
+        Create a new order, only User can create one.
         """
-        user = request.user
-        role = user.role
-        item = get_object_or_404(Product, id=pk)
+        form = OrderCreatForm(request.data)
+    
+        if form.is_valid():
+        # Create a new order
+            order = form.save(commit=False)
+            order.customer = request.user
+            order.save()
 
-        if role == User.Role.USER:
-            form = OrderCreatForm(request.data)
+        # Get the current user's cart
+            cart = Cart.objects.get(user=request.user)
 
-            if form.is_valid():
-                new_order = form.save(commit=False)
-                new_order.customer = user
-                new_order.product = item
-                new_order.save()
+        # Get cart items for the user's cart
+            cart_items = CartItem.objects.filter(cart=cart)
+            if not cart_items:
+                return Response({"error": "Cannot create an order from an empty cart"}, status=status.HTTP_400_BAD_REQUEST)
 
-                return Response(
-                    "New order created successfully!", status=status.HTTP_201_CREATED
+        # Add cart items to the order and calculate total price
+            total_price = 0
+            for cart_item in cart_items:
+                order_item = OrderItem.objects.create(
+                    order_of_item=order,
+                    product=cart_item.product,
+                    quantity=cart_item.quantity,
+                    price=cart_item.product.price * cart_item.quantity
                 )
-            else:
-                return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(
-                "Only users can create a new order.", status=status.HTTP_403_FORBIDDEN
-            )
+                total_price += order_item.price
+
+        # Update total price of the order
+            order.total_price = total_price
+            order.save()
+
+        # Clear the user's cart
+            cart_items.delete()
+
+            return Response({"success": "New order created successfully!"}, status=status.HTTP_201_CREATED)
+    
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OrderPaymentAPIView(APIView):
@@ -498,3 +512,66 @@ class ChangeOrderStatusAPIView(APIView):
         return Response(
             {"detail": "Only administrators can change the status of an order."},
         )
+
+
+# class CreateOrderAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     @extend_schema(
+#         description="""
+#             Create a new order, only User can create one.
+#             Creates a new order for the specified product.
+
+#             Parameters:
+#                 - `pk` (int): The ID of the product.
+
+#             Example request body:
+#                 {
+#                     "address": "U address",
+#                     "postal_code": "U postal_code",
+#                     "city": "U city name",
+#                 }
+
+#             Example response:
+#                 "New order created successfully!
+#         """,
+#         responses={201: "New order created successfully!"},
+#         tags=["Products"],
+#         request={
+#             "application/json": {
+#                 "type": "object",
+#                 "properties": {
+#                     "address": {"type": "string", "example": "U'r address"},
+#                     "postal_code": {"type": "string", "example": "U'r postal_code"},
+#                     "city": {"type": "string", "example": "U'r city name"},
+#                 },
+#                 "required": ["status"],
+#             },
+#         },
+#     )
+#     def post(self, request, pk):
+#         """
+#         Creates a new order for the specified product.
+#         """
+#         user = request.user
+#         role = user.role
+#         item = get_object_or_404(Product, id=pk)
+
+#         if role == User.Role.USER:
+#             form = OrderCreatForm(request.data)
+
+#             if form.is_valid():
+#                 new_order = form.save(commit=False)
+#                 new_order.customer = user
+#                 new_order.product = item
+#                 new_order.save()
+
+#                 return Response(
+#                     "New order created successfully!", status=status.HTTP_201_CREATED
+#                 )
+#             else:
+#                 return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+#         else:
+#             return Response(
+#                 "Only users can create a new order.", status=status.HTTP_403_FORBIDDEN
+#             )

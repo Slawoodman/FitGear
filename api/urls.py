@@ -11,11 +11,6 @@ urlpatterns = [
     path("routes/", views.RoutesAPIView.as_view(), name="routes"),
     path("products/", views.ProductsAPIView.as_view(), name="products"),
     path("products/<int:pk>/", views.ProductAPIView.as_view(), name="product"),
-    path(
-        "products/<int:pk>/order/create/",
-        views.CreateOrderAPIView.as_view(),
-        name="create_order",
-    ),
     
     path("cart/", views.CartAPIView.as_view(),name="view-cart"),
     path("cart/add-to-cart/<int:pk>/<int:quantity>/", views.AddToCartAPIView.as_view(), name="add-to-cart"),
@@ -23,19 +18,20 @@ urlpatterns = [
     path("cart/remove-from-cart/<int:cart_item_id>/", views.RemoveFromCartAPIView.as_view(), name="remove-from-cart"),
 
     path("orders/", views.OrdersAPIView.as_view(), name="orders"),
-    path("orders/<int:pk>/", views.OrderAPIView.as_view(), name="order"),
+    path("order/<int:pk>/", views.OrderAPIView.as_view(), name="order"),
+    path("order/create-order/", views.CreateOrderAPIView.as_view(),name="create-order"),
     path(
-        "orders/<int:pk>/payment/",
+        "order/<int:pk>/payment/",
         views.OrderPaymentAPIView.as_view(),
         name="order_payment",
     ),
     path(
-        "orders/<int:pk>/gen-bill/",
+        "order/<int:pk>/gen-bill/",
         views.OrderGenBillAPIView.as_view(),
         name="order_gen_bill",
     ),
     path(
-        "orders/<int:pk>/change-status/",
+        "order/<int:pk>/change-status/",
         views.ChangeOrderStatusAPIView.as_view(),
         name="change_order_status",
     ),
